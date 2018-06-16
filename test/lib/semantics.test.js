@@ -286,6 +286,57 @@ describe("Semanticsをテストする",() => {
       })
     });
   });
+  describe("preludeを使って評価する",() => {
+    it("I(1)はMaybe.just(1)を返す",(done) => {
+      const one = Exp.num(1),
+        I = Exp.variable('I'),
+        application = Exp.app(I, one);
+      const initialEnv = Env.prelude()
+
+      Maybe.match(Semantics.evaluate(application).run(initialEnv),{
+        nothing: (_) => {
+          expect().fail();
+        },
+        just: (value) => {
+          expect(value).to.eql(1);
+          done(); 
+        }
+      })
+    });
+    it("K(1)(2)はMaybe.just(2)を返す",(done) => {
+      const one = Exp.num(1),
+        two = Exp.num(2),
+        K = Exp.variable('K'),
+        application = Exp.app(Exp.app(K, one), (two));
+      const initialEnv = Env.prelude()
+
+      Maybe.match(Semantics.evaluate(application).run(initialEnv),{
+        nothing: (_) => {
+          expect().fail();
+        },
+        just: (value) => {
+          expect(value).to.eql(1);
+          done(); 
+        }
+      })
+    });
+    it("prev(1)はMaybe.just(2)を返す",(done) => {
+      const two = Exp.num(2),
+        prev = Exp.variable('prev'),
+        application = Exp.app(prev, two);
+      const initialEnv = Env.prelude()
+
+      Maybe.match(Semantics.evaluate(application).run(initialEnv),{
+        nothing: (_) => {
+          expect().fail();
+        },
+        just: (value) => {
+          expect(value).to.eql(1);
+          done(); 
+        }
+      })
+    });
+  });
   describe("Let式を評価する",() => {
     it("(let x = 1 in (x + x)",(done) => {
       const x = Exp.variable('x'),

@@ -35,7 +35,6 @@ describe("環境をテストする",() => {
     ).to.eql('a');
     done(); 
   });
-
   it("Env.lookupをテストする",(done) => {
     const env = Env.extend('a', 1)(Env.empty());
     Maybe.match(Env.lookup('a')(env),{
@@ -48,6 +47,16 @@ describe("環境をテストする",() => {
     })
     done(); 
   });
-
+  // it("Env.preludeをテストする",(done) => {
+  //   const env = Env.prelude();
+  //   expect(array.length(env)).to.eql(3) 
+  //   done(); 
+  // });
+  // it("Env.loadをテストする",(done) => {
+  //   const env = Env.load('../resource/prelude.js')
+  //   console.log(env)
+  //   expect(array.length(env)).to.eql(2) 
+  //   done(); 
+  // });
 
 });
