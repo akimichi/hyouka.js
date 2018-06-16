@@ -1,0 +1,33 @@
+{
+  "name": "hyouka.js",
+  "version": "0.1.0",
+  "description": "A simple functional programming interpreter library in node.js",
+  "main": "app.js",
+  "directories": {
+    "doc": "doc",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akimichi/hyouka.js.git"
+  },
+  "keywords": [
+    "node.js",
+    "lambda",
+    "calculus",
+    "funtional",
+    "programming",
+    "language",
+    "intepreter"
+  ],
+  "author": "Akimichi Tatsukawa",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/akimichi/hyouka.js/issues"
+  },
+  "homepage": "https://github.com/akimichi/hyouka.js#readme"
+}
