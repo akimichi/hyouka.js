@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha -R spec --recursive test/"
   },
   "repository": {
     "type": "git",
@@ -29,5 +29,12 @@
   "bugs": {
     "url": "https://github.com/akimichi/hyouka.js/issues"
   },
-  "homepage": "https://github.com/akimichi/hyouka.js#readme"
+  "homepage": "https://github.com/akimichi/hyouka.js#readme",
+  "dependencies": {
+    "kansuu.js": "0.3.0"
+  },
+  "devDependencies": {
+    "expect.js": "0.3.1",
+    "mocha": "5.2.0"
+  }
 }
