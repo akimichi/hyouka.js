@@ -63,6 +63,49 @@ describe("文法をテストする",() => {
       });
     });
   });
+  describe("演算子をテストする",(done) => {
+    it("binArithmeticをテストする",(done) => {
+      Maybe.match(Parser.parse(Syntax.binArithmetic())("1 + 2"), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        },
+        just: (result) => {
+          Exp.match(result.value, {
+            binArithmetic: (binOperator, x, y) => {
+              Exp.match(binOperator, {
+                binOperator: (symbol) => {
+                  expect(symbol).to.eql("+");
+                  Exp.match(x, {
+                    num: (value) => {
+                      expect(value).to.eql(1);
+                      done();
+                    }
+                  })
+                }
+              })
+            }
+          })
+        }
+      });
+    });
+    it("binOperatorをテストする",(done) => {
+      Maybe.match(Parser.parse(Syntax.binOperator())(" + "), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        },
+        just: (result) => {
+          Exp.match(result.value, {
+            binOperator: (symbol) => {
+              expect(symbol).to.eql("+");
+              done();
+            }
+          })
+        }
+      });
+    });
+  });
   describe("valueをテストする",(done) => {
     it("numをテストする",(done) => {
       Maybe.match(Parser.parse(Syntax.num())("123"), {
@@ -79,11 +122,6 @@ describe("文法をテストする",() => {
           })
         }
       });
-      // Exp.match((Parser.parse(Syntax.bool())('true'))[0].value, {
-      //   bool: (value) => {
-      //     expect(value).to.eql(true);
-      //   }
-      // })
     });
     it("boolをテストする",(done) => {
       Maybe.match(Parser.parse(Syntax.bool())("true"), {
@@ -98,17 +136,9 @@ describe("文法をテストする",() => {
               done();
             }
           })
-          // expect(result.value).to.eql(-123)
-          // expect(result.remaining).to.eql(' abc')
-          // next();
         }
       });
     });
-    // Exp.match((Parser.parse(Syntax.bool())('true'))[0].value, {
-    //   bool: (value) => {
-    //     expect(value).to.eql(true);
-    //   }
-    // })
   });
   it("lambdaをテストする",(done) => {
     Maybe.match(Syntax.lambda()("^x { x }"), {
