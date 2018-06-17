@@ -346,7 +346,8 @@ describe("Semanticsをテストする",() => {
         S = Exp.variable('S'),
         K = Exp.variable('K'),
         I = Exp.variable('I'),
-        application = Exp.app(Exp.app(Exp.app(S, K), K), one);
+        SKK = Exp.app(Exp.app(S, K), K),
+        application = Exp.app(SKK, one);
         // application = Exp.app(S, Exp.app(K, Exp.app(K, one)));
       const initialEnv = Env.prelude()
 
