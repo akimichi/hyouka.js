@@ -1,6 +1,7 @@
 "use strict";
 
 const fs = require('fs'),
+  util = require('util'),
   expect = require('expect.js');
 
 const kansuu = require('kansuu.js'),
@@ -33,19 +34,36 @@ describe("環境をテストする",() => {
     expect(
       pair.left(array.head(env))
     ).to.eql('a');
+    const updatedEnv = Env.extend('b', 2)(env);
+    expect(
+      pair.left(array.head(updatedEnv))
+    ).to.eql('b');
     done(); 
   });
   it("Env.lookupをテストする",(done) => {
     const env = Env.extend('a', 1)(Env.empty());
+    // console.log(util.inspect(env))
     Maybe.match(Env.lookup('a')(env),{
       nothing: (_) => {
         expect().fail();
       },
       just: (value) => {
         expect(value).to.eql(1);
+        // done();
       }
     })
-    done(); 
+    const updatedEnv = Env.extend('b', 2)(env);
+    // console.log(util.inspect(updatedEnv))
+    Maybe.match(Env.lookup('b')(updatedEnv),{
+      nothing: (_) => {
+        expect().fail();
+        done(); 
+      },
+      just: (value) => {
+        expect(value).to.eql(2);
+        done(); 
+      }
+    })
   });
   // it("Env.preludeをテストする",(done) => {
   //   const env = Env.prelude();

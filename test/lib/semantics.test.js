@@ -21,7 +21,7 @@ describe("Semanticsをテストする",() => {
     it("evaluate(1)は、Maybe.just(1)を返す",(done) => {
       const num = Exp.num(1);
 
-      Maybe.match(Semantics.evaluate(num).run(Env.empty()),{
+      Maybe.match(Semantics.evaluate(num)(Env.empty()),{
         nothing: (_) => {
           expect().fail();
         },
@@ -35,7 +35,7 @@ describe("Semanticsをテストする",() => {
       const num = Exp.num(1),
         initialEnv = Env.extend('x',1)(Env.empty())
 
-      Maybe.match(Semantics.evaluate(num).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(num)(initialEnv),{
         nothing: (_) => {
           expect().fail();
         },
@@ -50,7 +50,7 @@ describe("Semanticsをテストする",() => {
     it("evaluate(true)は、Maybe.just(true)を返す",(done) => {
       const t = Exp.bool(true);
 
-      Maybe.match(Semantics.evaluate(t).run(Env.empty()),{
+      Maybe.match(Semantics.evaluate(t)(Env.empty()),{
         nothing: (_) => {
           expect().fail();
         },
@@ -66,7 +66,7 @@ describe("Semanticsをテストする",() => {
       const variable = Exp.variable('a');
       const initialEnv = Env.extend('a', 1)(Env.empty())
 
-      Maybe.match(Semantics.evaluate(variable).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(variable)(initialEnv),{
         nothing: (_) => {
           expect().fail();
         },
@@ -80,7 +80,7 @@ describe("Semanticsをテストする",() => {
       const variable = Exp.variable('b'),
         initialEnv = Env.extend('a',1)(Env.empty())
 
-      Maybe.match(Semantics.evaluate(variable).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(variable)(initialEnv),{
         nothing: (message) => {
           expect(message).to.eql('変数 b は未定義です');
           done(); 
@@ -96,7 +96,7 @@ describe("Semanticsをテストする",() => {
       const one = Exp.num(1);
       const initialEnv = Env.empty()
 
-      Maybe.match(Semantics.evaluate(Exp.succ(one)).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(Exp.succ(one))(initialEnv),{
         nothing: (_) => {
           expect().fail();
         },
@@ -110,7 +110,7 @@ describe("Semanticsをテストする",() => {
       const one = Exp.num(1);
       const initialEnv = Env.empty()
 
-      Maybe.match(Semantics.evaluate(Exp.prev(one)).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(Exp.prev(one))(initialEnv),{
         nothing: (_) => {
           expect().fail();
         },
@@ -125,7 +125,7 @@ describe("Semanticsをテストする",() => {
         two = Exp.num(2);
       const initialEnv = Env.empty()
 
-      Maybe.match(Semantics.evaluate(Exp.add(one, two)).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(Exp.add(one, two))(initialEnv),{
         nothing: (_) => {
           expect().fail();
         },
@@ -140,7 +140,7 @@ describe("Semanticsをテストする",() => {
       const one = Exp.num(1);
       const initialEnv = Env.extend('x', 1)(Env.empty())
 
-      Maybe.match(Semantics.evaluate(Exp.add(x, one)).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(Exp.add(x, one))(initialEnv),{
         nothing: (_) => {
           expect().fail();
         },
@@ -155,7 +155,7 @@ describe("Semanticsをテストする",() => {
         one = Exp.num(1),
         initialEnv = Env.extend('x',1)(Env.empty());
 
-      Maybe.match(Semantics.evaluate(Exp.add(y, one)).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(Exp.add(y, one))(initialEnv),{
         nothing: (_) => {
           expect(true).to.be.ok();
           done(); 
@@ -170,7 +170,7 @@ describe("Semanticsをテストする",() => {
         two = Exp.num(2);
       const initialEnv = Env.empty()
 
-      Maybe.match(Semantics.evaluate(Exp.subtract(two, one)).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(Exp.subtract(two, one))(initialEnv),{
         nothing: (_) => {
           expect().fail();
         },
@@ -186,7 +186,7 @@ describe("Semanticsをテストする",() => {
       const initialEnv = Env.empty()
 
       const exp = Exp.add(Exp.subtract(two, one),two);
-      Maybe.match(Semantics.evaluate(exp).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(exp)(initialEnv),{
         nothing: (_) => {
           expect().fail();
         },
@@ -202,7 +202,7 @@ describe("Semanticsをテストする",() => {
       const initialEnv = Env.empty()
 
       const exp = Exp.add(Exp.subtract(two, y),two);
-      Maybe.match(Semantics.evaluate(exp).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(exp)(initialEnv),{
         nothing: (message) => {
           expect(message).to.eql('変数 y は未定義です');
           done(); 
@@ -221,7 +221,7 @@ describe("Semanticsをテストする",() => {
       const operator = Exp.binOperator("+"), 
         arithmetic = Exp.binArithmetic(operator,  one, two);
 
-      Maybe.match(Semantics.evaluate(arithmetic).run(Env.empty()),{
+      Maybe.match(Semantics.evaluate(arithmetic)(Env.empty()),{
         nothing: (_) => {
           expect().fail();
         },
@@ -242,7 +242,7 @@ describe("Semanticsをテストする",() => {
         ,one
       );
 
-      Maybe.match(Semantics.evaluate(application).run(Env.empty()),{
+      Maybe.match(Semantics.evaluate(application)(Env.empty()),{
         nothing: (_) => {
           expect().fail();
         },
@@ -257,7 +257,7 @@ describe("Semanticsをテストする",() => {
         one = Exp.num(1);
       const application = Exp.app(Exp.lambda(x, Exp.add(x, one)), one);
 
-      Maybe.match(Semantics.evaluate(application).run(Env.empty()),{
+      Maybe.match(Semantics.evaluate(application)(Env.empty()),{
         nothing: (_) => {
           expect().fail();
         },
@@ -272,7 +272,7 @@ describe("Semanticsをテストする",() => {
         y = Exp.variable('y'),
         two = Exp.num(2);
       const application = Exp.app(Exp.lambda(x, Exp.add(x, y)), two);
-      Maybe.match(Semantics.evaluate(application).run(Env.empty()),{
+      Maybe.match(Semantics.evaluate(application)(Env.empty()),{
         nothing: (message) => {
           expect(message).to.eql('変数 y は未定義です');
           done(); 
@@ -295,14 +295,13 @@ describe("Semanticsをテストする",() => {
                 Exp.add(x, y)))
             , one)
           , two);
-      Maybe.match(Semantics.evaluate(application).run(Env.empty()),{
+      Maybe.match(Semantics.evaluate(application)(Env.empty()),{
         nothing: (message) => {
-          console.log(message)
           expect().to.fail();
           done(); 
         },
         just: (value) => {
-          expect(value).to.eql(4);
+          expect(value).to.eql(3);
           done(); 
         }
       })
@@ -314,9 +313,9 @@ describe("Semanticsをテストする",() => {
       const application = Exp.app(succ, one),
         env = Env.extend(
           'succ', 
-          (n) => { return Reader.unit(Maybe.just(n + 1))}
+          (n) => { return Maybe.just(n + 1)}
         )(Env.empty());
-      Maybe.match(Semantics.evaluate(application).run(env),{
+      Maybe.match(Semantics.evaluate(application)(env),{
         nothing: (message) => {
           expect(message).to.eql('変数 y は未定義です');
           done(); 
@@ -329,13 +328,29 @@ describe("Semanticsをテストする",() => {
     });
   });
   describe("preludeを使って評価する",() => {
+    it("succ(1)はMaybe.just(2)を返す",(done) => {
+      const one = Exp.num(1),
+        succ = Exp.variable('succ'),
+        application = Exp.app(succ, one);
+      const initialEnv = Env.prelude()
+
+      Maybe.match(Semantics.evaluate(application)(initialEnv),{
+        nothing: (_) => {
+          expect().to.fail();
+        },
+        just: (value) => {
+          expect(value).to.eql(2);
+          done(); 
+        }
+      })
+    });
     it("I(1)はMaybe.just(1)を返す",(done) => {
       const one = Exp.num(1),
         I = Exp.variable('I'),
         application = Exp.app(I, one);
       const initialEnv = Env.prelude()
 
-      Maybe.match(Semantics.evaluate(application).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(application)(initialEnv),{
         nothing: (_) => {
           expect().to.fail();
         },
@@ -354,12 +369,30 @@ describe("Semanticsをテストする",() => {
           two);
       const initialEnv = Env.prelude()
 
-      Maybe.match(Semantics.evaluate(application).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(application)(initialEnv),{
         nothing: (_) => {
           expect().fail();
         },
         just: (value) => {
           expect(value).to.eql(1);
+          done(); 
+        }
+      })
+    });
+    it("and(true)(true)はMaybe.just(true)を返す",(done) => {
+      const t = Exp.bool(true),
+        and = Exp.variable('and'),
+        application = Exp.app(
+          Exp.app(and, t), 
+          t);
+      const initialEnv = Env.prelude()
+
+      Maybe.match(Semantics.evaluate(application)(initialEnv),{
+        nothing: (_) => {
+          expect().fail();
+        },
+        just: (value) => {
+          expect(value).to.eql(true);
           done(); 
         }
       })
@@ -372,15 +405,14 @@ describe("Semanticsをテストする",() => {
         I = Exp.variable('I'),
         SKK = Exp.app(Exp.app(S, K), K),
         application = Exp.app(SKK, one);
-        // application = Exp.app(S, Exp.app(K, Exp.app(K, one)));
       const initialEnv = Env.prelude()
 
-      Maybe.match(Semantics.evaluate(application).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(application)(initialEnv),{
         nothing: (_) => {
           expect().fail();
         },
         just: (value) => {
-          expect(value).to.eql(2);
+          expect(value).to.eql(1);
           done(); 
         }
       })
@@ -391,7 +423,7 @@ describe("Semanticsをテストする",() => {
         application = Exp.app(prev, two);
       const initialEnv = Env.prelude()
 
-      Maybe.match(Semantics.evaluate(application).run(initialEnv),{
+      Maybe.match(Semantics.evaluate(application)(initialEnv),{
         nothing: (_) => {
           expect().fail();
         },
@@ -407,7 +439,7 @@ describe("Semanticsをテストする",() => {
       const x = Exp.variable('x'),
         one = Exp.num(1);
       const letExp = Exp.let(x, one, Exp.add(x,x)); 
-      Maybe.match(Semantics.evaluate(letExp).run(Env.empty()),{
+      Maybe.match(Semantics.evaluate(letExp)(Env.empty()),{
         nothing: (_) => {
           expect().fail();
         },
