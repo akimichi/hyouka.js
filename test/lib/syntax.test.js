@@ -62,6 +62,22 @@ describe("文法をテストする",() => {
         }
       });
     });
+    it("(expression)をテストする",(done) => {
+      Maybe.match(Parser.parse(Syntax.expression())("(123)"), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        },
+        just: (result) => {
+          Exp.match(result.value, {
+            num: (value) => {
+              expect(value).to.eql(123);
+              done();
+            }
+          })
+        }
+      });
+    });
   });
   describe("演算子をテストする",(done) => {
     it("binArithmeticをテストする",(done) => {
