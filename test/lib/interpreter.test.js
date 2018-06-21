@@ -48,6 +48,19 @@ describe("Interpreterをテストする",() => {
       })
     });
   });
+  describe("演算子を評価する",() => {
+    it("Interpreter.evaluate(3-2)は、Maybe.just(1)を返す",(done) => {
+      Maybe.match(Interpreter.evaluate("3 - 2")(Env.empty()),{
+        nothing: (_) => {
+          expect().fail();
+        },
+        just: (value) => {
+          expect(value).to.eql(1);
+          done(); 
+        }
+      })
+    });
+  });
   describe("値を評価する",() => {
     it("Interpreter.evaluate(1)は、Maybe.just(1)を返す",(done) => {
       Maybe.match(Interpreter.evaluate("1")(Env.empty()),{

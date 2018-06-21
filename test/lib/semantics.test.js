@@ -214,6 +214,24 @@ describe("Semanticsをテストする",() => {
       })
     });
   });
+  describe("四則演算を評価する",() => {
+    it("1 + 2 = 3",(done) => {
+      const one = Exp.num(1),
+        two = Exp.num(2);
+      const operator = Exp.binOperator("+"), 
+        arithmetic = Exp.binArithmetic(operator,  one, two);
+
+      Maybe.match(Semantics.evaluate(arithmetic).run(Env.empty()),{
+        nothing: (_) => {
+          expect().fail();
+        },
+        just: (value) => {
+          expect(value).to.eql(3);
+          done(); 
+        }
+      })
+    });
+  });
   describe("Exp.appを評価する",() => {
     it("(x => succ(x))(1)",(done) => {
       const x = Exp.variable('x'),
@@ -327,11 +345,13 @@ describe("Semanticsをテストする",() => {
         }
       })
     });
-    it("K(1)(2)はMaybe.just(2)を返す",(done) => {
+    it("K(1)(2)はMaybe.just(1)を返す",(done) => {
       const one = Exp.num(1),
         two = Exp.num(2),
         K = Exp.variable('K'),
-        application = Exp.app(Exp.app(K, one), (two));
+        application = Exp.app(
+          Exp.app(K, one), 
+          two);
       const initialEnv = Env.prelude()
 
       Maybe.match(Semantics.evaluate(application).run(initialEnv),{
@@ -340,6 +360,27 @@ describe("Semanticsをテストする",() => {
         },
         just: (value) => {
           expect(value).to.eql(1);
+          done(); 
+        }
+      })
+    });
+    it("((S K) K) 1))はMaybe.just(1)を返す",(done) => {
+      const one = Exp.num(1),
+        two = Exp.num(2),
+        S = Exp.variable('S'),
+        K = Exp.variable('K'),
+        I = Exp.variable('I'),
+        SKK = Exp.app(Exp.app(S, K), K),
+        application = Exp.app(SKK, one);
+        // application = Exp.app(S, Exp.app(K, Exp.app(K, one)));
+      const initialEnv = Env.prelude()
+
+      Maybe.match(Semantics.evaluate(application).run(initialEnv),{
+        nothing: (_) => {
+          expect().fail();
+        },
+        just: (value) => {
+          expect(value).to.eql(2);
           done(); 
         }
       })
