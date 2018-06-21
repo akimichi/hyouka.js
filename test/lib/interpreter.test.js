@@ -21,7 +21,8 @@ describe("Interpreterをテストする",() => {
     Interpreter = require("../../lib/interpreter.js");
 
   describe("式を評価する",() => {
-    it("Interpreter.evaluate(^x { x }(1))は、Maybe.just(1)を返す",(done) => {
+    it("Interpreter.evaluate(^x { x }(1))は、Maybe.just(1)を返す", function(done) {
+      this.timeout('5s')
       Maybe.match(Interpreter.evaluate("^x{ x }(1))")(Env.empty()),{
         nothing: (_) => {
           expect().fail();
@@ -35,7 +36,7 @@ describe("Interpreterをテストする",() => {
     it("Interpreter.evaluate(succ(1))は、Maybe.just(2)を返す",(done) => {
       const env = Env.extend(
         'succ', 
-        (n) => { return Reader.unit(Maybe.just(n + 1))}
+        (n) => { return Maybe.just(n + 1)}
       )(Env.empty());
       Maybe.match(Interpreter.evaluate("succ(1)")(env),{
         nothing: (_) => {
