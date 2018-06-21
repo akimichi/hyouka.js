@@ -265,6 +265,30 @@ describe("Semanticsをテストする",() => {
         }
       })
     });
+    it("(x => (y => x + y))(1)(2)",(done) => {
+      const x = Exp.variable('x'),
+        y = Exp.variable('y'),
+        one = Exp.num(1),
+        two = Exp.num(2);
+      const application = Exp.app(
+          Exp.app(
+            Exp.lambda(x, 
+              Exp.lambda(y, 
+                Exp.add(x, y)))
+            , one)
+          , two);
+      Maybe.match(Semantics.evaluate(application).run(Env.empty()),{
+        nothing: (message) => {
+          console.log(message)
+          expect().to.fail();
+          done(); 
+        },
+        just: (value) => {
+          expect(value).to.eql(4);
+          done(); 
+        }
+      })
+    });
     it("app(succ, 1)",(done) => {
       const succ = Exp.variable('succ'),
         x = Exp.variable('x'),
@@ -295,7 +319,7 @@ describe("Semanticsをテストする",() => {
 
       Maybe.match(Semantics.evaluate(application).run(initialEnv),{
         nothing: (_) => {
-          expect().fail();
+          expect().to.fail();
         },
         just: (value) => {
           expect(value).to.eql(1);
