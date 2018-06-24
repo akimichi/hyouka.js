@@ -542,34 +542,102 @@ describe("Monadic Parser", () => {
       // //   next();
     });
     describe("chainパーサ", (next) => {
-      // it("chainl1", (next) => {
-      //   // nat :: Parser Int
-      //   // nat = chainl1 [ord x - ord ’0’ | x <digit] op
-      //   //         where
-      //   //            op m n = 10*m + n
-      //   const nat = () => {
-      //     const _op = () => {
-      //       return Parser.unit(
-      //         (m) => {
-      //           return (n) => {
-      //             return 10 * m + n
-      //           };
-      //         });
-      //     };
-      //     const _digit = () => {
-      //       return Parser.flatMap(Parser.digit())(n => {
-      //         return Parser.unit(parseInt(n,10)); 
-      //       })
-      //     };
-      //     return Parser.chainl1(_digit, _op);
-      //   };
-      //   expect(
-      //     Parser.parse(nat())("123")
-      //   ).to.eql(
-      //     [{value:123, remaining: ''}]
-      //   );
-      //   next();
-      // });
+      it("四則演算", (next) => {
+        // expr = term 
+        //        | chainl1  addop
+        // term = factor
+        //        | chainr1‘ expop
+        // factor = nat ++ bracket (char ’(’) expr (char ’)’)
+        // addop = ops [(char ’+’, (+)), (char ’-’, (-))]
+        // multiplyop = ops [(char '*' , (*))]
+        const open = Parser.char("("),
+          close = Parser.char(")"); 
+        const addop = () => {
+          const plus = Parser.char("+"),
+            minus = Parser.char("-");
+          return Parser.flatMap(Parser.alt(plus, minus))(symbol => {
+            switch(symbol) {
+              case "+":
+                return Parser.unit(Exp.add);
+              case "+":
+                return Parser.unit(Exp.subtract);
+              default: 
+                return Parser.zero;
+            }
+          });
+        };
+        const multiplyop = () => {
+          const multiply = Parser.char("*"),
+            divide = Parser.char("/");
+          return Parser.flatMap(Parser.alt(multiply, divide))(symbol => {
+            switch(symbol) {
+              case "*":
+                return Parser.unit(Exp.multiply);
+              case "/":
+                return Parser.unit(Exp.divide);
+              default: 
+                return Parser.zero;
+            }
+          });
+        };
+        const factor = () => {
+          return Parser.alt(Parser.nat(), Parser.bracket(open, expr, close));
+        };
+        const term = () => {
+          return Parser.chainr1(factor, multiplyop);
+        };
+        const expr = () => {
+          return Parser.chainl1(term(), addop);
+        };
+        Maybe.match(expr()("123"), {
+          nothing: (message) => {
+            expect().to.fail()
+            next();
+          },
+          just: (result) => {
+            expect(result.value).to.eql(123)
+            expect(result.remaining).to.eql('')
+            next();
+          }
+        });
+      });
+      it("chainl1", (next) => {
+        // nat :: Parser Int
+        // nat = chainl1 [ord x - ord ’0’ | x <digit] op
+        //         where
+        //            op m n = 10*m + n
+        const nat = () => {
+          const _op = () => {
+            return Parser.unit(
+              ((m) => (n) => {
+                return 10 * m + n
+              }));
+          };
+          const _digit = () => {
+            return Parser.flatMap(Parser.digit())(n => {
+              return Parser.unit(parseInt(n,10)); 
+            })
+          };
+          return Parser.chainl1(_digit, _op);
+        };
+        Maybe.match(Parser.nat()("123"), {
+          nothing: (message) => {
+            expect().to.fail()
+            next();
+          },
+          just: (result) => {
+            expect(result.value).to.eql(123)
+            expect(result.remaining).to.eql('')
+            next();
+          }
+        });
+        // expect(
+        //   Parser.parse(nat())("123")
+        // ).to.eql(
+        //   [{value:123, remaining: ''}]
+        // );
+        // next();
+      });
       it("nat", (next) => {
         Maybe.match(Parser.nat()("123"), {
           nothing: (message) => {
@@ -633,7 +701,7 @@ describe("Monadic Parser", () => {
     it("bracket", (next) => {
       const open = Parser.char("("),
         close = Parser.char(")"); 
-      Maybe.match(Parser.bracket(open,Parser.ident(), close)("(identifier)"), {
+      Maybe.match(Parser.bracket(open,Parser.ident, close)("(identifier)"), {
         nothing: (message) => {
           expect().to.fail()
           next();

@@ -62,42 +62,56 @@ describe("文法をテストする",() => {
         }
       });
     });
-    it("(expression)をテストする",(done) => {
-      Maybe.match(Parser.parse(Syntax.expression())("(123)"), {
-        nothing: (message) => {
-          expect().to.fail()
-          done();
-        },
-        just: (result) => {
-          Exp.match(result.value, {
-            num: (value) => {
-              expect(value).to.eql(123);
-              done();
-            }
-          })
-        }
+    describe("(式)をテストする",() => {
+      it("(123)をテストする",(done) => {
+        Maybe.match(Parser.parse(Syntax.expression())("(123)"), {
+          nothing: (message) => {
+            expect().to.fail()
+            done();
+          },
+          just: (result) => {
+            Exp.match(result.value, {
+              num: (value) => {
+                expect(value).to.eql(123);
+                done();
+              }
+            })
+          }
+        });
+      });
+      it("(false)をテストする", function(done) {
+        Maybe.match(Parser.parse(Syntax.expression())("(false)"), {
+          nothing: (message) => {
+            expect().to.fail()
+            done();
+          },
+          just: (result) => {
+            Exp.match(result.value, {
+              bool: (value) => {
+                expect(value).to.eql(false);
+                done();
+              }
+            })
+          }
+        });
       });
     });
   });
-  describe("演算子をテストする",(done) => {
-    it("binArithmeticをテストする",(done) => {
-      Maybe.match(Parser.parse(Syntax.binArithmetic())("1 + 2"), {
+  describe("演算子をテストする",() => {
+    it("2+3をテストする", function(done) {
+      this.timeout('5s')
+      return Maybe.match(Parser.parse(Syntax.binArithmetic())("2 + 3"), {
         nothing: (message) => {
           expect().to.fail()
           done();
         },
         just: (result) => {
           Exp.match(result.value, {
-            binArithmetic: (binOperator, x, y) => {
-              Exp.match(binOperator, {
-                binOperator: (symbol) => {
-                  expect(symbol).to.eql("+");
-                  Exp.match(x, {
-                    num: (value) => {
-                      expect(value).to.eql(1);
-                      done();
-                    }
-                  })
+            app: (closure, arg) => {
+              Exp.match(arg, {
+                num: (value) => {
+                  expect(value).to.eql(2);
+                  done();
                 }
               })
             }
@@ -105,22 +119,47 @@ describe("文法をテストする",() => {
         }
       });
     });
-    it("binOperatorをテストする",(done) => {
-      Maybe.match(Parser.parse(Syntax.binOperator())(" + "), {
-        nothing: (message) => {
-          expect().to.fail()
-          done();
-        },
-        just: (result) => {
-          Exp.match(result.value, {
-            binOperator: (symbol) => {
-              expect(symbol).to.eql("+");
-              done();
-            }
-          })
-        }
-      });
-    });
+    // it("binArithmeticをテストする",(done) => {
+    //   Maybe.match(Parser.parse(Syntax.binArithmetic())("1 + 2"), {
+    //     nothing: (message) => {
+    //       expect().to.fail()
+    //       done();
+    //     },
+    //     just: (result) => {
+    //       Exp.match(result.value, {
+    //         binArithmetic: (binOperator, x, y) => {
+    //           Exp.match(binOperator, {
+    //             binOperator: (symbol) => {
+    //               expect(symbol).to.eql("+");
+    //               Exp.match(x, {
+    //                 num: (value) => {
+    //                   expect(value).to.eql(1);
+    //                   done();
+    //                 }
+    //               })
+    //             }
+    //           })
+    //         }
+    //       })
+    //     }
+    //   });
+    // });
+    // it("binOperatorをテストする",(done) => {
+    //   Maybe.match(Parser.parse(Syntax.binOperator())(" + "), {
+    //     nothing: (message) => {
+    //       expect().to.fail()
+    //       done();
+    //     },
+    //     just: (result) => {
+    //       Exp.match(result.value, {
+    //         binOperator: (symbol) => {
+    //           expect(symbol).to.eql("+");
+    //           done();
+    //         }
+    //       })
+    //     }
+    //   });
+    // });
   });
   describe("valueをテストする",(done) => {
     it("numをテストする",(done) => {
