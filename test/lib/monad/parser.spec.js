@@ -552,8 +552,8 @@ describe("Monadic Parser", () => {
         const open = Parser.char("("),
           close = Parser.char(")"); 
         const addop = () => {
-          const plus = Parser.char("+"),
-            minus = Parser.char("-");
+          const plus = Parser.token(Parser.char("+")),
+            minus = Parser.token(Parser.char("-"));
           return Parser.flatMap(Parser.alt(plus, minus))(symbol => {
             switch(symbol) {
               case "+":
@@ -570,8 +570,8 @@ describe("Monadic Parser", () => {
           });
         };
         const multiplyop = () => {
-          const multiply = Parser.char("*"),
-            divide = Parser.char("/");
+          const multiply = Parser.token(Parser.char("*")),
+            divide = Parser.token(Parser.char("/"));
           return Parser.flatMap(Parser.alt(multiply, divide))(symbol => {
             switch(symbol) {
               case "*":
@@ -663,6 +663,32 @@ describe("Monadic Parser", () => {
         });
         it("2 * 3 + 4", (next) => {
           Maybe.match(expr()("2 * 3 + 4"), {
+            nothing: (message) => {
+              expect().to.fail()
+              next();
+            },
+            just: (result) => {
+              expect(result.value).to.eql(10)
+              expect(result.remaining).to.eql('')
+              next();
+            }
+          });
+        });
+        it("2 * (3 + 4)", (next) => {
+          Maybe.match(expr()("2 * (3 + 4)"), {
+            nothing: (message) => {
+              expect().to.fail()
+              next();
+            },
+            just: (result) => {
+              expect(result.value).to.eql(14)
+              expect(result.remaining).to.eql('')
+              next();
+            }
+          });
+        });
+        it("2 * (3 + (4 / 2))", (next) => {
+          Maybe.match(expr()("2 * (3 + (4 / 2))"), {
             nothing: (message) => {
               expect().to.fail()
               next();
