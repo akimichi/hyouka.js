@@ -543,7 +543,7 @@ describe("Monadic Parser", () => {
       // //   next();
     });
     describe("chainパーサ", (next) => {
-      it("四則演算", (next) => {
+      describe("四則演算", () => {
         // expr = term chainl1  addop
         // term = factor chainr1‘ expop
         // factor = nat ++ bracket (char ’(’) expr (char ’)’)
@@ -596,71 +596,83 @@ describe("Monadic Parser", () => {
         const factor = () => {
           return Parser.alt(Parser.natural(), Parser.bracket(open, expr, close));
         };
-        Maybe.match(expr()("123"), {
-          nothing: (message) => {
-            expect().to.fail()
-            next();
-          },
-          just: (result) => {
-            expect(result.value).to.eql(123)
-            expect(result.remaining).to.eql('')
-            // next();
-          }
+        it("123", (next) => {
+          Maybe.match(expr()("123"), {
+            nothing: (message) => {
+              expect().to.fail()
+              next();
+            },
+            just: (result) => {
+              expect(result.value).to.eql(123)
+              expect(result.remaining).to.eql('')
+              next();
+            }
+          });
         });
-        Maybe.match(expr()("(123)"), {
-          nothing: (message) => {
-            expect().to.fail()
-            next();
-          },
-          just: (result) => {
-            expect(result.value).to.eql(123)
-            expect(result.remaining).to.eql('')
-            // next();
-          }
+        it("(123)", (next) => {
+          Maybe.match(expr()("(123)"), {
+            nothing: (message) => {
+              expect().to.fail()
+              next();
+            },
+            just: (result) => {
+              expect(result.value).to.eql(123)
+              expect(result.remaining).to.eql('')
+              next();
+            }
+          });
         });
-        Maybe.match(expr()("1+2"), {
-          nothing: (message) => {
-            expect().to.fail()
-            next();
-          },
-          just: (result) => {
-            expect(result.value).to.eql(3)
-            expect(result.remaining).to.eql('')
-            // next();
-          }
+        it("1+2", (next) => {
+          Maybe.match(expr()("1+2"), {
+            nothing: (message) => {
+              expect().to.fail()
+              next();
+            },
+            just: (result) => {
+              expect(result.value).to.eql(3)
+              expect(result.remaining).to.eql('')
+              next();
+            }
+          });
         });
-        Maybe.match(expr()("(1 + 2)"), {
-          nothing: (message) => {
-            expect().to.fail()
-            next();
-          },
-          just: (result) => {
-            expect(result.value).to.eql(3)
-            expect(result.remaining).to.eql('')
-            // next();
-          }
+        it("(1 + 2)", (next) => {
+          Maybe.match(expr()("(1 + 2)"), {
+            nothing: (message) => {
+              expect().to.fail()
+              next();
+            },
+            just: (result) => {
+              expect(result.value).to.eql(3)
+              expect(result.remaining).to.eql('')
+              next();
+            }
+          });
         });
-        Maybe.match(expr()("(2 * 3)"), {
-          nothing: (message) => {
-            expect().to.fail()
-            next();
-          },
-          just: (result) => {
-            expect(result.value).to.eql(6)
-            expect(result.remaining).to.eql('')
-            // next();
-          }
+        it("(2 * 3)", (next) => {
+          Maybe.match(expr()("(2 * 3)"), {
+            nothing: (message) => {
+              expect().to.fail()
+              next();
+            },
+            just: (result) => {
+              expect(result.value).to.eql(6)
+              expect(result.remaining).to.eql('')
+              next();
+            }
+          });
         });
-        Maybe.match(expr()("2 * 3 + 4"), {
-          nothing: (message) => {
-            expect().to.fail()
-            next();
-          },
-          just: (result) => {
-            expect(result.value).to.eql(10)
-            expect(result.remaining).to.eql('')
-            next();
-          }
+        it("2 * 3 + 4", (next) => {
+          Maybe.match(expr()("2 * 3 + 4"), {
+            nothing: (message) => {
+              expect().to.fail()
+              next();
+            },
+            just: (result) => {
+              expect(result.value).to.eql(10)
+              expect(result.remaining).to.eql('')
+              next();
+            }
+          });
         });
       });
       it("chainl1", (next) => {
