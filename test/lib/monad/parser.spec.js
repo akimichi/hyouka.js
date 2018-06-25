@@ -594,7 +594,7 @@ describe("Monadic Parser", () => {
           return Parser.chainr1(factor, multiplyop);
         };
         const factor = () => {
-          return Parser.alt(Parser.nat(), Parser.bracket(open, expr, close));
+          return Parser.alt(Parser.natural(), Parser.bracket(open, expr, close));
         };
         Maybe.match(expr()("123"), {
           nothing: (message) => {
@@ -625,6 +625,39 @@ describe("Monadic Parser", () => {
           },
           just: (result) => {
             expect(result.value).to.eql(3)
+            expect(result.remaining).to.eql('')
+            // next();
+          }
+        });
+        Maybe.match(expr()("(1 + 2)"), {
+          nothing: (message) => {
+            expect().to.fail()
+            next();
+          },
+          just: (result) => {
+            expect(result.value).to.eql(3)
+            expect(result.remaining).to.eql('')
+            // next();
+          }
+        });
+        Maybe.match(expr()("(2 * 3)"), {
+          nothing: (message) => {
+            expect().to.fail()
+            next();
+          },
+          just: (result) => {
+            expect(result.value).to.eql(6)
+            expect(result.remaining).to.eql('')
+            // next();
+          }
+        });
+        Maybe.match(expr()("2 * 3 + 4"), {
+          nothing: (message) => {
+            expect().to.fail()
+            next();
+          },
+          just: (result) => {
+            expect(result.value).to.eql(10)
             expect(result.remaining).to.eql('')
             next();
           }
@@ -660,12 +693,6 @@ describe("Monadic Parser", () => {
             next();
           }
         });
-        // expect(
-        //   Parser.parse(nat())("123")
-        // ).to.eql(
-        //   [{value:123, remaining: ''}]
-        // );
-        // next();
       });
       it("nat", (next) => {
         Maybe.match(Parser.nat()("123"), {
