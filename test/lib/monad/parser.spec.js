@@ -5,6 +5,7 @@ const expect = require('expect.js'),
   array = kansuu.array,
   pair = kansuu.pair,
   Env = require('../../../lib/env.js'),
+  Exp = require('../../../lib/exp.js'),
   Monad = require('../../../lib/monad'),
   ID = Monad.ID,
   Maybe = Monad.Maybe;
@@ -543,10 +544,8 @@ describe("Monadic Parser", () => {
     });
     describe("chainパーサ", (next) => {
       it("四則演算", (next) => {
-        // expr = term 
-        //        | chainl1  addop
-        // term = factor
-        //        | chainr1‘ expop
+        // expr = term chainl1  addop
+        // term = factor chainr1‘ expop
         // factor = nat ++ bracket (char ’(’) expr (char ’)’)
         // addop = ops [(char ’+’, (+)), (char ’-’, (-))]
         // multiplyop = ops [(char '*' , (*))]
@@ -558,9 +557,13 @@ describe("Monadic Parser", () => {
           return Parser.flatMap(Parser.alt(plus, minus))(symbol => {
             switch(symbol) {
               case "+":
-                return Parser.unit(Exp.add);
-              case "+":
-                return Parser.unit(Exp.subtract);
+                return Parser.unit((x) => (y) => {
+                  return x + y;
+                });
+              case "-":
+                return Parser.unit((x) => (y) => {
+                  return x - y;
+                });
               default: 
                 return Parser.zero;
             }
@@ -572,22 +575,26 @@ describe("Monadic Parser", () => {
           return Parser.flatMap(Parser.alt(multiply, divide))(symbol => {
             switch(symbol) {
               case "*":
-                return Parser.unit(Exp.multiply);
+                return Parser.unit((x) => (y) => {
+                  return x * y;
+                });
               case "/":
-                return Parser.unit(Exp.divide);
+                return Parser.unit((x) => (y) => {
+                  return x / y;
+                });
               default: 
                 return Parser.zero;
             }
           });
         };
-        const factor = () => {
-          return Parser.alt(Parser.nat(), Parser.bracket(open, expr, close));
+        const expr = () => {
+          return Parser.chainl1(term, addop);
         };
         const term = () => {
           return Parser.chainr1(factor, multiplyop);
         };
-        const expr = () => {
-          return Parser.chainl1(term(), addop);
+        const factor = () => {
+          return Parser.alt(Parser.nat(), Parser.bracket(open, expr, close));
         };
         Maybe.match(expr()("123"), {
           nothing: (message) => {
@@ -596,6 +603,28 @@ describe("Monadic Parser", () => {
           },
           just: (result) => {
             expect(result.value).to.eql(123)
+            expect(result.remaining).to.eql('')
+            // next();
+          }
+        });
+        Maybe.match(expr()("(123)"), {
+          nothing: (message) => {
+            expect().to.fail()
+            next();
+          },
+          just: (result) => {
+            expect(result.value).to.eql(123)
+            expect(result.remaining).to.eql('')
+            // next();
+          }
+        });
+        Maybe.match(expr()("1+2"), {
+          nothing: (message) => {
+            expect().to.fail()
+            next();
+          },
+          just: (result) => {
+            expect(result.value).to.eql(3)
             expect(result.remaining).to.eql('')
             next();
           }
