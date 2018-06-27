@@ -97,10 +97,41 @@ describe("文法をテストする",() => {
       });
     });
   });
-  describe("演算子をテストする",() => {
-    it("2+3をテストする", function(done) {
-      this.timeout('5s')
-      return Maybe.match(Parser.parse(Syntax.binArithmetic())("2 + 3"), {
+  describe("Syntax.arithmeticで四則演算をテストする",() => {
+    it("factorで2をテストする", (done) => {
+      return Maybe.match(Parser.parse(Syntax.arithmetic.factor())("2"), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        },
+        just: (result) => {
+          Exp.match(result.value, {
+            num: (value) => {
+              expect(value).to.eql(2);
+              done();
+            }
+          })
+        }
+      });
+    });
+    it("factorで(2)をテストする", (done) => {
+      return Maybe.match(Parser.parse(Syntax.arithmetic.factor())("(2)"), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        },
+        just: (result) => {
+          Exp.match(result.value, {
+            num: (value) => {
+              expect(value).to.eql(2);
+              done();
+            }
+          })
+        }
+      });
+    });
+    it("termで 1 * 2 をテストする", (done) => {
+      return Maybe.match(Parser.parse(Syntax.arithmetic.term())("1 * 2"), {
         nothing: (message) => {
           expect().to.fail()
           done();
@@ -108,12 +139,9 @@ describe("文法をテストする",() => {
         just: (result) => {
           Exp.match(result.value, {
             app: (closure, arg) => {
-              Exp.match(arg, {
-                num: (value) => {
-                  expect(value).to.eql(2);
-                  done();
-                }
-              })
+
+              expect(value).to.eql(2);
+              done();
             }
           })
         }
