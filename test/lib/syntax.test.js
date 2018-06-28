@@ -79,8 +79,8 @@ describe("文法をテストする",() => {
           }
         });
       });
-      it("(false)をテストする", function(done) {
-        Maybe.match(Parser.parse(Syntax.expression())("(false)"), {
+      it("falseをテストする", (done) => {
+        Maybe.match(Parser.parse(Syntax.expression())("false"), {
           nothing: (message) => {
             expect().to.fail()
             done();
