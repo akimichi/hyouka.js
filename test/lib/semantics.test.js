@@ -7,14 +7,17 @@ const kansuu = require('kansuu.js'),
   array = kansuu.array,
   pair = kansuu.pair;
 
+
 // ### Semanticsのテスト
 describe("Semanticsをテストする",() => {
   const Env = require("../../lib/env.js"),
     Exp = require("../../lib/exp.js"),
+    Syntax = require("../../lib/syntax.js"),
     Semantics = require("../../lib/semantics.js");
 
   const Monad = require('../../lib/monad'),
     Reader = Monad.Reader,
+    Parser = Monad.Parser,
     Maybe = Monad.Maybe;
 
   describe("数値を評価する",() => {
@@ -215,6 +218,66 @@ describe("Semanticsをテストする",() => {
     });
   });
   describe("四則演算を評価する",() => {
+    // it("1 * 2 = 2",(done) => {
+    //   const expR = Exp.num(1),
+    //     expL = Exp.num(2);
+    //   const x = Exp.variable('x'), 
+    //     y = Exp.variable('y'),
+    //     application = Exp.app(
+    //       Exp.app(
+    //         Exp.lambda(x, 
+    //           Exp.lambda(y, 
+    //             Exp.multiply(x, y)))
+    //         , expR)
+    //       , expL);
+    //   Maybe.match(Semantics.evaluate(application)(Env.empty()),{
+    //     nothing: (_) => {
+    //       expect().fail();
+    //     },
+    //     just: (value) => {
+    //       expect(value).to.eql(2);
+    //       done(); 
+    //     }
+    //   })
+    // });
+    it("1 * 2 = 2",(done) => {
+      Maybe.match(Parser.parse(Syntax.arithmetic.term())("1*2"), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        },
+        just: (result) => {
+          Maybe.match(Semantics.evaluate(result.value)(Env.empty()),{
+            nothing: (_) => {
+              expect().fail();
+            },
+            just: (value) => {
+              expect(value).to.eql(2);
+              done(); 
+            }
+          })
+        }
+      });
+    });
+    it("1 + 2 = 3",(done) => {
+      Maybe.match(Parser.parse(Syntax.arithmetic.expr())("1+2"), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        },
+        just: (result) => {
+          Maybe.match(Semantics.evaluate(result.value)(Env.empty()),{
+            nothing: (_) => {
+              expect().fail();
+            },
+            just: (value) => {
+              expect(value).to.eql(3);
+              done(); 
+            }
+          })
+        }
+      });
+    });
     it("1 + 2 = 3",(done) => {
       const one = Exp.num(1),
         two = Exp.num(2);

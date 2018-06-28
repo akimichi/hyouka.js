@@ -130,23 +130,23 @@ describe("文法をテストする",() => {
         }
       });
     });
-    it("termで 1 * 2 をテストする", (done) => {
-      return Maybe.match(Parser.parse(Syntax.arithmetic.term())("1 * 2"), {
-        nothing: (message) => {
-          expect().to.fail()
-          done();
-        },
-        just: (result) => {
-          Exp.match(result.value, {
-            app: (closure, arg) => {
+    // it("termで 1 * 2 をテストする", (done) => {
+    //   return Maybe.match(Parser.parse(Syntax.arithmetic.term())("1 * 2"), {
+    //     nothing: (message) => {
+    //       expect().to.fail()
+    //       done();
+    //     },
+    //     just: (result) => {
+    //       Exp.match(result.value, {
+    //         app: (closure, arg) => {
 
-              expect(value).to.eql(2);
-              done();
-            }
-          })
-        }
-      });
-    });
+    //           expect(value).to.eql(2);
+    //           done();
+    //         }
+    //       })
+    //     }
+    //   });
+    // });
     // it("binArithmeticをテストする",(done) => {
     //   Maybe.match(Parser.parse(Syntax.binArithmetic())("1 + 2"), {
     //     nothing: (message) => {
