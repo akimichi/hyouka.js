@@ -278,22 +278,60 @@ describe("Semanticsをテストする",() => {
         }
       });
     });
-    it("1 + 2 = 3",(done) => {
-      const one = Exp.num(1),
-        two = Exp.num(2);
-      const operator = Exp.binOperator("+"), 
-        arithmetic = Exp.binArithmetic(operator,  one, two);
-
-      Maybe.match(Semantics.evaluate(arithmetic)(Env.empty()),{
-        nothing: (_) => {
-          expect().fail();
+    it("2 % 4 = 2",(done) => {
+      Maybe.match(Parser.parse(Syntax.arithmetic.expr())("2 % 4"), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
         },
-        just: (value) => {
-          expect(value).to.eql(3);
-          done(); 
+        just: (result) => {
+          Maybe.match(Semantics.evaluate(result.value)(Env.empty()),{
+            nothing: (_) => {
+              expect().fail();
+            },
+            just: (value) => {
+              expect(value).to.eql(2);
+              done(); 
+            }
+          })
         }
-      })
+      });
     });
+    it("2 % 4 ^ 2 = 2",(done) => {
+      Maybe.match(Parser.parse(Syntax.arithmetic.expr())("(2 % 4) ^ 2"), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        },
+        just: (result) => {
+          Maybe.match(Semantics.evaluate(result.value)(Env.empty()),{
+            nothing: (_) => {
+              expect().fail();
+            },
+            just: (value) => {
+              expect(value).to.eql(4);
+              done(); 
+            }
+          })
+        }
+      });
+    });
+    // it("1 + 2 = 3",(done) => {
+    //   const one = Exp.num(1),
+    //     two = Exp.num(2);
+    //   const operator = Exp.binOperator("+"), 
+    //     arithmetic = Exp.binArithmetic(operator,  one, two);
+
+    //   Maybe.match(Semantics.evaluate(arithmetic)(Env.empty()),{
+    //     nothing: (_) => {
+    //       expect().fail();
+    //     },
+    //     just: (value) => {
+    //       expect(value).to.eql(3);
+    //       done(); 
+    //     }
+    //   })
+    // });
   });
   describe("Exp.appを評価する",() => {
     it("(x => succ(x))(1)",(done) => {
