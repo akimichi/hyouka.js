@@ -445,6 +445,22 @@ describe("Semanticsをテストする",() => {
         }
       })
     });
+    it("abs(-1)はMaybe.just(1)を返す",(done) => {
+      const one = Exp.num(-1),
+        abs = Exp.variable('abs'),
+        application = Exp.app(abs, one);
+      const initialEnv = Env.prelude()
+
+      Maybe.match(Semantics.evaluate(application)(initialEnv),{
+        nothing: (_) => {
+          expect().to.fail();
+        },
+        just: (value) => {
+          expect(value).to.eql(1);
+          done(); 
+        }
+      })
+    });
     it("I(1)はMaybe.just(1)を返す",(done) => {
       const one = Exp.num(1),
         I = Exp.variable('I'),
