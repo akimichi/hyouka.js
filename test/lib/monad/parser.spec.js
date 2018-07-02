@@ -475,12 +475,10 @@ describe("Monadic Parser", () => {
           nothing: (message) => {
             console.log(message)
             expect().to.fail()
-            // next();
           },
           just: (result) => {
             expect(result.value).to.eql('123')
             expect(result.remaining).to.eql('def')
-            // next();
           }
         });
         Maybe.match(Parser.many(Parser.digit())("abc"), {

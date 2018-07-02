@@ -20,6 +20,21 @@ describe("Semanticsをテストする",() => {
     Parser = Monad.Parser,
     Maybe = Monad.Maybe;
 
+  describe("配列型を評価する",() => {
+    it("evaluate([1])は、Maybe.just([1])を返す",(done) => {
+      const array = Exp.array([1,2,3]);
+
+      Maybe.match(Semantics.evaluate(array)(Env.empty()),{
+        nothing: (_) => {
+          expect().fail();
+        },
+        just: (value) => {
+          expect(value).to.eql([1,2,3]);
+          done(); 
+        }
+      })
+    });
+  });
   describe("数値を評価する",() => {
     it("evaluate(1)は、Maybe.just(1)を返す",(done) => {
       const num = Exp.num(1);
@@ -356,7 +371,10 @@ describe("Semanticsをテストする",() => {
     it("(x => (x + 1))(1)",(done) => {
       const x = Exp.variable('x'),
         one = Exp.num(1);
-      const application = Exp.app(Exp.lambda(x, Exp.add(x, one)), one);
+      const application = Exp.app(
+        Exp.lambda(x,
+          Exp.add(x, one)),
+        one);
 
       Maybe.match(Semantics.evaluate(application)(Env.empty()),{
         nothing: (_) => {
