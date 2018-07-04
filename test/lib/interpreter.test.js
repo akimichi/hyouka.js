@@ -62,7 +62,7 @@ describe("Interpreterをテストする",() => {
           expect().fail();
         },
         just: (value) => {
-          expect(value).to.eql(2);
+          expect(value).to.eql(3);
           done(); 
         }
       })
