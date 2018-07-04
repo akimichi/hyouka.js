@@ -31,14 +31,18 @@ describe("文法をテストする",() => {
           Exp.match(result.value, {
             app: (operator, operand) => {
               Exp.match(operator, {
-                variable: (name) => {
-                  expect(name).to.eql('succ');
-                  Exp.match(operand, {
-                    num: (value) => {
-                      expect(value).to.eql(1);
-                      done();
-                    }
-                  })
+                lambda: (arg, body) => {
+                   Exp.match(arg, {
+                     variable: (name) => {
+                       expect(name).to.eql('x');
+                       Exp.match(operand, {
+                         num: (value) => {
+                           expect(value).to.eql(1);
+                           done();
+                         }
+                       })
+                     }
+                   })
                 }
               })
             }
@@ -248,13 +252,17 @@ describe("文法をテストする",() => {
       }
     });
   });
+  /*
+      (^x -> x)(1)
+      ->
+      Exp.app(Exp.lambda(x
+                         , Exp.variable(x))
+              , Exp.num(1))
+      */ 
   describe("appをテストする",() => {
     it("(^x -> x)(1)をテストする", function(done) {
-      this.timeout('5s')
+      // this.timeout('5s')
       Maybe.match(Syntax.app()("^x { x }(1)"), {
-        //                      operator operands
-        //                      Exp.app(Exp.lambda(Exp.variable(x), Exp.variable(x)), Exp.num(1))
-        //                              operator                                      operand
         nothing: (message) => {
           expect().to.fail()
           done();
@@ -281,7 +289,6 @@ describe("文法をテストする",() => {
           })
         }
       });
-      // done();
     });
     /*
       succ(1)
@@ -302,7 +309,6 @@ describe("文法をテストする",() => {
         just: (result) => {
           Exp.match(result.value, {
             app: (operator, operand) => {
-
               Exp.match(operator, {
                 lambda: (arg, body) => {
                    Exp.match(arg, {
