@@ -249,10 +249,12 @@ describe("文法をテストする",() => {
     });
   });
   describe("appをテストする",() => {
-    it("(^x -> x)(1)をテストする", (done) => {
+    it("(^x -> x)(1)をテストする", function(done) {
+      this.timeout('5s')
       Maybe.match(Syntax.app()("^x { x }(1)"), {
         //                      operator operands
-        //                      Exp.app(operator, operand)
+        //                      Exp.app(Exp.lambda(Exp.variable(x), Exp.variable(x)), Exp.num(1))
+        //                              operator                                      operand
         nothing: (message) => {
           expect().to.fail()
           done();
@@ -281,31 +283,45 @@ describe("文法をテストする",() => {
       });
       // done();
     });
-    // it("succ(1)をテストする",(done) => {
-    //   Maybe.match(Syntax.app()("succ(1)"), {
-    //     nothing: (message) => {
-    //       expect().to.fail()
-    //       done();
-    //     },
-    //     just: (result) => {
-    //       Exp.match(result.value, {
-    //         app: (operator, operand) => {
-    //           Exp.match(operator, {
-    //             variable: (name) => {
-    //               expect(name).to.eql('succ');
-    //               Exp.match(operand, {
-    //                 num: (value) => {
-    //                   expect(value).to.eql(1);
-    //                   done();
-    //                 }
-    //               })
-    //             }
-    //           })
-    //         }
-    //       })
-    //     }
-    //   });
-    //   done();
-    // });
+    /*
+      succ(1)
+      ->
+      Exp.app(Exp.lambda(x
+                         , Exp.app(Exp.variable(succ)
+                                   , x))
+              , Exp.num(1))
+      Exp.app(Exp.variable(succ ), Exp.num(1))
+    */ 
+
+    it("succ(1)をテストする", function(done) {
+      return Maybe.match(Syntax.app()("succ(1)"), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        },
+        just: (result) => {
+          Exp.match(result.value, {
+            app: (operator, operand) => {
+
+              Exp.match(operator, {
+                lambda: (arg, body) => {
+                   Exp.match(arg, {
+                     variable: (name) => {
+                       expect(name).to.eql('x');
+                       Exp.match(operand, {
+                         num: (value) => {
+                           expect(value).to.eql(1);
+                           done();
+                         }
+                       })
+                     }
+                   })
+                }
+              })
+            }
+          })
+        }
+      });
+    });
   });
 });

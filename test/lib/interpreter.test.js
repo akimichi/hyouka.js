@@ -48,6 +48,25 @@ describe("Interpreterをテストする",() => {
         }
       })
     });
+    it("Interpreter.evaluate(add(1 2))は、Maybe.just(2)を返す",(done) => {
+      const env = Env.extend(
+        'add', 
+        (n) => { 
+          return Maybe.just(m => {
+            return Maybe.just(n + m);
+          })
+        }
+      )(Env.empty());
+      Maybe.match(Interpreter.evaluate("add(1 2)")(env),{
+        nothing: (_) => {
+          expect().fail();
+        },
+        just: (value) => {
+          expect(value).to.eql(2);
+          done(); 
+        }
+      })
+    });
   });
   describe("演算子を評価する",() => {
     it("Interpreter.evaluate(3-2)は、Maybe.just(1)を返す",(done) => {
