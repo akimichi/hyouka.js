@@ -4,7 +4,15 @@ A simple functional programming language interpreter library in node.js
 
 ## Install
 
+
+~~~
+$ npm install hyouka.js
+~~~
+
 ## Usage
+
+
+
 
 ## Test
 
