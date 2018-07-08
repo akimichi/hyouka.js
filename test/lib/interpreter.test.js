@@ -11,6 +11,7 @@ const Monad = require('../../lib/monad'),
   Maybe = Monad.Maybe,
   Reader = Monad.Reader,
   Parser = Monad.Parser,
+  Cont = Monad.Cont,
   ID = Monad.ID;
 
 // ### Interpreterのテスト
@@ -21,9 +22,9 @@ describe("Interpreterをテストする",() => {
     Interpreter = require("../../lib/interpreter.js");
 
   describe("式を評価する",() => {
-    it("Interpreter.evaluate(^x { x }(1))は、Maybe.just(1)を返す", function(done) {
+    it("Interpreter.eval(^x { x }(1))は、Maybe.just(1)を返す", function(done) {
       this.timeout('5s')
-      Maybe.match(Interpreter.evaluate("^x{ x }(1))")(Env.empty()),{
+      Maybe.match(Cont.eval(Interpreter.eval("^x{ x }(1))")(Env.empty())),{
         nothing: (_) => {
           expect().fail();
         },
@@ -33,12 +34,12 @@ describe("Interpreterをテストする",() => {
         }
       })
     });
-    it("Interpreter.evaluate(succ(1))は、Maybe.just(2)を返す",(done) => {
+    it("Interpreter.eval(succ(1))は、Maybe.just(2)を返す",(done) => {
       const env = Env.extend(
         'succ', 
         (n) => { return Maybe.just(n + 1)}
       )(Env.empty());
-      Maybe.match(Interpreter.evaluate("succ(1)")(env),{
+      Maybe.match(Cont.eval(Interpreter.eval("succ(1)")(env)),{
         nothing: (_) => {
           expect().fail();
         },
@@ -48,7 +49,7 @@ describe("Interpreterをテストする",() => {
         }
       })
     });
-    it("Interpreter.evaluate(add(1 2))は、Maybe.just(2)を返す",(done) => {
+    it("Interpreter.eval(add(1 2))は、Maybe.just(2)を返す",(done) => {
       const env = Env.extend(
         'add', 
         (n) => { 
@@ -57,7 +58,7 @@ describe("Interpreterをテストする",() => {
           })
         }
       )(Env.empty());
-      Maybe.match(Interpreter.evaluate("add(1 2)")(env),{
+      Maybe.match(Cont.eval(Interpreter.eval("add(1 2)")(env)),{
         nothing: (_) => {
           expect().fail();
         },
@@ -69,8 +70,8 @@ describe("Interpreterをテストする",() => {
     });
   });
   describe("演算子を評価する",() => {
-    it("Interpreter.evaluate(3-2)は、Maybe.just(1)を返す",(done) => {
-      Maybe.match(Interpreter.evaluate("3 - 2")(Env.empty()),{
+    it("Interpreter.eval(3-2)は、Maybe.just(1)を返す",(done) => {
+      Maybe.match(Cont.eval(Interpreter.eval("3 - 2")(Env.empty())),{
         nothing: (_) => {
           expect().fail();
         },
@@ -80,8 +81,8 @@ describe("Interpreterをテストする",() => {
         }
       })
     });
-    it("Interpreter.evaluate(3*10.0)は、Maybe.just(1)を返す",(done) => {
-      Maybe.match(Interpreter.evaluate("3 * 10.0")(Env.empty()),{
+    it("Interpreter.eval(3*10.0)は、Maybe.just(1)を返す",(done) => {
+      Maybe.match(Cont.eval(Interpreter.eval("3 * 10.0")(Env.empty())),{
         nothing: (_) => {
           expect().fail();
         },
@@ -94,7 +95,7 @@ describe("Interpreterをテストする",() => {
   });
   describe("値を評価する",() => {
     it("Interpreter.evaluate(1)は、Maybe.just(1)を返す",(done) => {
-      Maybe.match(Interpreter.evaluate("1")(Env.empty()),{
+      Maybe.match(Cont.eval(Interpreter.eval("1")(Env.empty())),{
         nothing: (_) => {
           expect().fail();
         },
@@ -104,8 +105,8 @@ describe("Interpreterをテストする",() => {
         }
       })
     });
-    it("Interpreter.evaluate(false)は、Maybe.just(false)を返す",(done) => {
-      Maybe.match(Interpreter.evaluate("false")(Env.empty()),{
+    it("Interpreter.eval(false)は、Maybe.just(false)を返す",(done) => {
+      Maybe.match(Cont.eval(Interpreter.eval("false")(Env.empty())),{
         nothing: (_) => {
           expect().fail();
         },
