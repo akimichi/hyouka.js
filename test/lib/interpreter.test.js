@@ -49,7 +49,8 @@ describe("Interpreterをテストする",() => {
         }
       })
     });
-    it("Interpreter.eval(add(1 2))は、Maybe.just(2)を返す",(done) => {
+    it("Interpreter.eval(add(1 2))は、Maybe.just(2)を返す", function(done) {
+      this.timeout('5s')
       const env = Env.extend(
         'add', 
         (n) => { 

@@ -261,7 +261,7 @@ describe("文法をテストする",() => {
       */ 
   describe("appをテストする",() => {
     it("(^x -> x)(1)をテストする", function(done) {
-      // this.timeout('5s')
+      this.timeout('5s')
       Maybe.match(Syntax.app()("^x { x }(1)"), {
         nothing: (message) => {
           expect().to.fail()
