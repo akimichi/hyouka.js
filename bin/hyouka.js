@@ -38,24 +38,21 @@ const inputAction = (prompt) => {
 // });
 // IO.run(action)
 
-const repl = () => {
-  return Cont.callCC(exit => {
-    const loop = () => {
-      return IO.flatMap(inputAction("\nprompt> "))(inputString  => {
-        // return IO.flatMap(IO.putArray(array.fromString(inputString)))(_ => {
-        return IO.flatMap(IO.putString(inputString))(_ => {
-          if(inputString === 'end') {
-            return exit(IO.done(_));
-          } else {
-            return loop(); 
-          }
-        });
+const repl = Cont.callCC(exit => {
+  const loop = () => {
+    return IO.flatMap(inputAction("\nprompt> "))(inputString  => {
+      return IO.flatMap(IO.putString(inputString))(_ => {
+        if(inputString === 'end') {
+          return exit(IO.done(_));
+        } else {
+          return loop(); 
+        }
       });
-    };
-    return Cont.unit(loop())
-  });
-};
-IO.run(repl()(Cont.stop))
+    });
+  };
+  return Cont.unit(loop())
+});
+IO.run(Cont.eval(repl))
 
 // const repl = () => {
 //   return Cont.callCC(exit => {
