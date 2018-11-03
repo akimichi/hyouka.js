@@ -20,28 +20,52 @@ const Env = require("../lib/env.js"),
   Semantics = require("../lib/semantics.js"),
   Interpreter = require("../lib/interpreter.js");
 
+const readlineSync = require('readline-sync');
 
-const prompt = (prefix) => {
-  return IO.putArray(array.fromString(prefix));
+const inputAction = (prefix) => {
+  return (_) => {
+    const reply = readlineSync.question(prefix);
+    return reply;
+  };
 };
 
-const promptAction = prompt("\n  >") 
 
 // IO.run(IO.flatMap(promptAction)(_ => {
 //   return IO.done(_);
 // }))
 
-const repl = () => {
-  const actions = (action) => {
-    return IO.flatMap(action)(_ => {
-      return IO.done(_)
-    });
-  };
-  return Cont.callCC((k) => {
-    return k(actions(promptAction))
-  })
-};
-IO.run(repl()(Cont.stop))
+
+const action = IO.flatMap(inputAction("prompt> "))(inputString  => {
+  return IO.flatMap(IO.putArray(array.fromString(inputString)))(_ => {
+    return IO.done(_);
+  });
+});
+
+IO.run(action)
+
+// const repl = () => {
+//   // return Cont.callCC(loop => {
+//   //   return IO.flatMap(promptAction)(_  => {
+//   //     return IO.flatMap(IO.getChar())(character => {
+//   //       return IO.flatMap(IO.putArray(array.fromString(character)))(_ => {
+//   //         return loop(IO.done(_));
+//   //       });
+//   //     });
+//   //   });
+//   // });
+//   // const readAction = IO.getChar;
+//   // const printAction = IO.putArray;
+
+//   // const actions = (action) => {
+//   //   return IO.flatMap(action)(_ => {
+//   //     return IO.done(_)
+//   //   });
+//   // };
+//   // return Cont.callCC((k) => {
+//   //   return k(actions(promptAction))
+//   // })
+// };
+// IO.run(repl()(Cont.stop))
 
       // var buffer = "";
       // return Cont.callCC(k => {

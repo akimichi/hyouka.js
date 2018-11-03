@@ -89,24 +89,28 @@ describe("Contモナドをテストする",() => {
       ).to.eql(
         4
       );
-      var safeDivideCC = (n,m) => {
-        return Cont.callCC((k) => {
-          if(m !== 0) {
-            return k(n / m);
-          }
-          return k(null);
+      const safeDivide = (n,m) => {
+        return Cont.callCC(ok => {
+          return Cont.flatMap(Cont.callCC(ng => {
+            if(m !== 0) {
+              return ok(n / m);
+            }
+            return ng("0で除算");
+          }))(err => {
+            throw new Error(err)
+          });
         });
       };
       expect(
-        Cont.eval(safeDivideCC(4,2))
+        Cont.eval(safeDivide(4,2))
       ).to.eql(
         2
       );
       expect(
-        Cont.eval(safeDivideCC(4,0))
-      ).to.be(
-        null
-      );
+        (_) => {
+          return safeDivide(4,0)(Cont.stop)
+        }
+      ).to.throwError();
       next();
     });
     it('even', (next) => {
