@@ -22,11 +22,8 @@ const Env = require("../lib/env.js"),
 
 const readlineSync = require('readline-sync');
 
-const inputAction = (prefix) => {
-  return (_) => {
-    const reply = readlineSync.question(prefix);
-    return reply;
-  };
+const inputAction = (prompt) => {
+  return IO.unit(readlineSync.question(prompt));
 };
 
 
@@ -34,36 +31,52 @@ const inputAction = (prefix) => {
 //   return IO.done(_);
 // }))
 
+// const action = IO.flatMap(inputAction("prompt> "))(inputString  => {
+//   return IO.flatMap(IO.putArray(array.fromString(inputString)))(_ => {
+//     return IO.done(_);
+//   });
+// });
+// IO.run(action)
 
-const action = IO.flatMap(inputAction("prompt> "))(inputString  => {
-  return IO.flatMap(IO.putArray(array.fromString(inputString)))(_ => {
-    return IO.done(_);
+const repl = () => {
+  return Cont.callCC(exit => {
+    const loop = () => {
+      return IO.flatMap(inputAction("\nprompt> "))(inputString  => {
+        // return IO.flatMap(IO.putArray(array.fromString(inputString)))(_ => {
+        return IO.flatMap(IO.putString(inputString))(_ => {
+          if(inputString === 'end') {
+            return exit(IO.done(_));
+          } else {
+            return loop(); 
+          }
+        });
+      });
+    };
+    return Cont.unit(loop())
   });
-});
-
-IO.run(action)
+};
+IO.run(repl()(Cont.stop))
 
 // const repl = () => {
-//   // return Cont.callCC(loop => {
-//   //   return IO.flatMap(promptAction)(_  => {
-//   //     return IO.flatMap(IO.getChar())(character => {
-//   //       return IO.flatMap(IO.putArray(array.fromString(character)))(_ => {
-//   //         return loop(IO.done(_));
-//   //       });
-//   //     });
-//   //   });
-//   // });
-//   // const readAction = IO.getChar;
-//   // const printAction = IO.putArray;
-
-//   // const actions = (action) => {
-//   //   return IO.flatMap(action)(_ => {
-//   //     return IO.done(_)
-//   //   });
-//   // };
-//   // return Cont.callCC((k) => {
-//   //   return k(actions(promptAction))
-//   // })
+//   return Cont.callCC(exit => {
+//     const loop = (done) => {
+//       const next =  Cont.callCC(again => {
+//         return IO.flatMap(IO.putArray(array.fromString("hyouka")))(_ => {
+//           return IO.flatMap(inputAction("> "))(inputString  => {
+//             return IO.flatMap(IO.putArray(array.fromString(inputString)))(_ => {
+//               if(inputString === '\n') {
+//                 return exit()
+//               } else {
+//                 return again(done);
+//               }
+//               // return exit(IO.done(_));
+//             });
+//           });
+//         });
+//       });
+//     };
+//     loop(IO.done())
+//   })
 // };
 // IO.run(repl()(Cont.stop))
 
