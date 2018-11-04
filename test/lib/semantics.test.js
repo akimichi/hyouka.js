@@ -396,8 +396,7 @@ describe("Semanticsをテストする",() => {
       const x = Exp.variable('x'),
         one = Exp.num(1);
       const application = Exp.app(
-        Exp.lambda(x,
-          Exp.add(x, one)),
+        Exp.lambda(x, Exp.add(x, one)),
         one);
 
       Maybe.match(Cont.eval(Semantics.evaluate(application)(Env.empty())),{

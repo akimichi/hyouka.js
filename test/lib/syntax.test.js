@@ -227,29 +227,56 @@ describe("文法をテストする",() => {
       });
     });
   });
-  it("lambdaをテストする",(done) => {
-    Maybe.match(Syntax.lambda()("^x { x }"), {
-      nothing: (message) => {
-        expect().to.fail()
-        done();
-      },
-      just: (result) => {
-        Exp.match(result.value, {
-          lambda: (variable, body) => {
-            Exp.match(variable, {
-              variable: (name) => {
-                expect(name).to.eql('x');
-                Exp.match(body, {
-                  variable: (name) => {
-                    expect(name).to.eql('x');
-                    done();
-                  }
-                })
-              }
-            })
-          }
-        })
-      }
+  describe("lambdaをテストする",(done) => {
+    it("^x { x }", (done) => {
+      Maybe.match(Syntax.lambda()("^x { x }"), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        },
+        just: (result) => {
+          Exp.match(result.value, {
+            lambda: (variable, body) => {
+              Exp.match(variable, {
+                variable: (name) => {
+                  expect(name).to.eql('x');
+                  Exp.match(body, {
+                    variable: (name) => {
+                      expect(name).to.eql('x');
+                      done();
+                    }
+                  })
+                }
+              })
+            }
+          })
+        }
+      });
+    });
+    it("^x { x + 1 }", (done) => {
+      Maybe.match(Syntax.lambda()("^x { x + 1 }"), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        },
+        just: (result) => {
+          Exp.match(result.value, {
+            lambda: (variable, body) => {
+              Exp.match(variable, {
+                variable: (name) => {
+                  expect(name).to.eql('x');
+                  Exp.match(body, {
+                    variable: (name) => {
+                      expect(name).to.eql('x');
+                      done();
+                    }
+                  })
+                }
+              })
+            }
+          })
+        }
+      });
     });
   });
   /*
@@ -281,6 +308,37 @@ describe("文法をテストする",() => {
                           done();
                         }
                       })
+                    }
+                  })
+                }
+              })
+            }
+          })
+        }
+      });
+    });
+    it("(^x -> x + 1)(1)をテストする", function(done) {
+      this.timeout('5s')
+      Maybe.match(Syntax.app()("^x { x + 1 }(1)"), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        },
+        just: (result) => {
+          Exp.match(result.value, {
+            app: (operator, operand) => {
+              Exp.match(operator, {
+                lambda: (arg, body) => {
+                  Exp.match(arg, {
+                    variable: (name) => {
+                      expect(name).to.eql("x");
+                      done()
+                      // Exp.match(operand, {
+                      //   num: (value) => {
+                      //     expect(value).to.eql(1);
+                      //     done();
+                      //   }
+                      // })
                     }
                   })
                 }

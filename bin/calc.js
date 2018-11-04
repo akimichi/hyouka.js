@@ -35,7 +35,7 @@ const repl = Cont.callCC(exit => {
         } else {
           return Maybe.match(Cont.eval(Interpreter.eval(inputString)(Env.empty())),{
             nothing: (_) => {
-              return IO.flatMap(IO.putString('nothing'))(_ => {
+              return IO.flatMap(IO.putString('\nnothing'))(_ => {
                 return loop(); 
               });
             },
