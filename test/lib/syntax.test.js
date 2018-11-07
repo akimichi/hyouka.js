@@ -388,22 +388,40 @@ describe("文法をテストする",() => {
         }
       });
     });
-    it("^x { x + 1 }", (done) => {
+    it("^x { x + 1 }", function (done) {
+      this.timeout('5s')
       Maybe.match(Syntax.lambda()("^x { x + 1 }"), {
         nothing: (message) => {
           expect().to.fail()
           done();
         },
         just: (result) => {
+          /*
+           * Exp.lambda(x, Exp.app(Exp.app(Exp.lambda(x, Exp.lambda(y, Exp.add(x,y))))))
+           *
+           *
+           */
           Exp.match(result.value, {
             lambda: (variable, body) => {
               Exp.match(variable, {
                 variable: (name) => {
                   expect(name).to.eql('x');
                   Exp.match(body, {
-                    variable: (name) => {
-                      expect(name).to.eql('x');
-                      done();
+                    app: (operator, operand) => {
+                      Exp.match(operator, {
+                        app: (operator, operand) => {
+                          Exp.match(operator, {
+                            lambda: (variable, body) => {
+                              Exp.match(variable, {
+                                variable: (name) => {
+                                  expect(name).to.eql("x");
+                                  done();
+                                }
+                              })
+                            }
+                          })
+                        }
+                      })
                     }
                   })
                 }
