@@ -11,10 +11,24 @@ $ npm install hyouka.js
 
 ## Usage
 
-~~~
-npm run hyouka
-~~~
 
+### sample program -- calculator
+
+~~~
+$ npm run hyouka-calc
+
+calc> 1 + 2
+1 + 2
+3
+
+calc> and(true false)
+and(true false)
+false
+
+calc> pow(2 10)
+pow(2 10)
+1024
+~~~
 
 
 ## Test
@@ -22,7 +36,8 @@ npm run hyouka
 ~~~
 $ git clone https://github.com/akimichi/hyouka.js.git
 $ cd hyouka.js
-hyouka$ npm test
+$ nvm use
+$ npm test
 ~~~
 
 
