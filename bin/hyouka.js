@@ -31,18 +31,11 @@ const inputAction = (prompt) => {
 //   return IO.done(_);
 // }))
 
-// const action = IO.flatMap(inputAction("prompt> "))(inputString  => {
-//   return IO.flatMap(IO.putArray(array.fromString(inputString)))(_ => {
-//     return IO.done(_);
-//   });
-// });
-// IO.run(action)
-
 const repl = Cont.callCC(exit => {
   const loop = () => {
     return IO.flatMap(inputAction("\nprompt> "))(inputString  => {
       return IO.flatMap(IO.putString(inputString))(_ => {
-        if(inputString === 'end') {
+        if(inputString === 'exit') {
           return exit(IO.done(_));
         } else {
           return loop(); 
@@ -54,37 +47,3 @@ const repl = Cont.callCC(exit => {
 });
 IO.run(Cont.eval(repl))
 
-// const repl = () => {
-//   return Cont.callCC(exit => {
-//     const loop = (done) => {
-//       const next =  Cont.callCC(again => {
-//         return IO.flatMap(IO.putArray(array.fromString("hyouka")))(_ => {
-//           return IO.flatMap(inputAction("> "))(inputString  => {
-//             return IO.flatMap(IO.putArray(array.fromString(inputString)))(_ => {
-//               if(inputString === '\n') {
-//                 return exit()
-//               } else {
-//                 return again(done);
-//               }
-//               // return exit(IO.done(_));
-//             });
-//           });
-//         });
-//       });
-//     };
-//     loop(IO.done())
-//   })
-// };
-// IO.run(repl()(Cont.stop))
-
-      // var buffer = "";
-      // return Cont.callCC(k => {
-      //   return IO.flatMap(IO.getChar())(inputChar => {
-      //     if(inputChar === '\n') {
-      //       return IO.unit(escape(buffer));
-      //     } else {
-      //       buffer = `${buffer}inputChar`
-      //     }
-      //   })
-      // })
-// IO.run(promptAction("prompt>"))(Cont.stop);

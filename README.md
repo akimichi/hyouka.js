@@ -11,6 +11,9 @@ $ npm install hyouka.js
 
 ## Usage
 
+~~~
+npm run hyouka
+~~~
 
 
 

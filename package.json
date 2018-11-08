@@ -9,7 +9,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha -R spec --recursive test/"
+    "test": "mocha -R spec --recursive test/",
+    "hyouka-cli": "bin/hyouka.js",
+    "hyouka-calc": "bin/calc.js"
   },
   "bin": {
     "hyouka": "./bin/hyouka.js"

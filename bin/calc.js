@@ -26,30 +26,33 @@ const inputAction = (prompt) => {
   return IO.unit(readlineSync.question(prompt));
 };
 
-const repl = Cont.callCC(exit => {
-  const loop = () => {
-    return IO.flatMap(inputAction("\ncalc> "))(inputString  => {
-      return IO.flatMap(IO.putString(inputString))(_ => {
-        if(inputString === 'exit') {
-          return exit(IO.done(_));
-        } else {
-          return Maybe.match(Cont.eval(Interpreter.eval(inputString)(Env.empty())),{
-            nothing: (_) => {
-              return IO.flatMap(IO.putString('\nnothing'))(_ => {
-                return loop(); 
-              });
-            },
-            just: (value) => {
-              return IO.flatMap(IO.putString(`\n${value}`))(_ => {
-                return loop(); 
-              });
-            }
-          })
-        }
+const repl = (environment) => {
+  return Cont.callCC(exit => {
+    const loop = () => {
+      return IO.flatMap(inputAction("\ncalc> "))(inputString  => {
+        return IO.flatMap(IO.putString(inputString))(_ => {
+          if(inputString === 'exit') {
+            return exit(IO.done(_));
+          } else {
+            return Maybe.match(Cont.eval(Interpreter.eval(inputString)(environment)),{
+              nothing: (message) => {
+                return IO.flatMap(IO.putString(`\nnothing: ${message}`))(_ => {
+                  return loop(); 
+                });
+              },
+              just: (value) => {
+                return IO.flatMap(IO.putString(`\n${value}`))(_ => {
+                  return loop(); 
+                });
+              }
+            })
+          }
+        });
       });
-    });
-  };
-  return Cont.unit(loop())
-});
-IO.run(Cont.eval(repl))
+    };
+    return Cont.unit(loop())
+  });
+};
+
+IO.run(Cont.eval(repl(Env.prelude())))
 

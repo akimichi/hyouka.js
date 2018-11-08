@@ -142,15 +142,51 @@ describe("文法をテストする",() => {
       });
     });
     /*
-      add(1 s)
+      add(1 2)
       ->
+      Exp.app(Exp.app(Exp.variable(add)
+                      , Exp.num(1))
+              , Exp.num(2))
       Exp.app(Exp.lambda(x
                          , Exp.app(Exp.variable(add)
                                    , x))
               , Exp.num(1))
     */ 
-    // it("add(1 2)をテストする", function(done) {
-    // });
+    it("add(1 2)をテストする", function(done) {
+      return Maybe.match(Parser.parse(Syntax.app())("add(1 2)"), {
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        },
+        just: (result) => {
+          return Exp.match(result.value, {
+            app: (operator, operand) => {
+              return Exp.match(operator, {
+                app: (operator, operand) => {
+                  return Exp.match(operator, {
+                    variable: (name) => {
+                      expect(name).to.eql('add');
+                      done()
+                    }
+                  });
+                  // Exp.match(operand, {
+                  //   num: (value) => {
+                  //     expect(value).to.eql(1);
+                  //     done();
+                  //   }
+                  // })
+                },
+                lambda: (arg, body) => {
+                  expect().to.fail()
+                  done();
+                }
+              })
+            }
+          })
+        }
+      });
+
+    });
   });
   describe("expressionをテストする",() => {
     describe("appをexpressionとしてパースする", () => {
