@@ -15,11 +15,6 @@ $ npm install hyouka.js
 #!/usr/bin/env node
 'use strict';
 
-const readlineSync = require('readline-sync');
-
-const kansuu = require('kansuu.js'),
-  array = kansuu.array;
-
 const Hyouka = require('hyouka.js');
 
 const Monad = Hyouka.Monad,
@@ -35,6 +30,7 @@ const Env = Hyouka.Env,
 
 const repl = (environment) => {
   const inputAction = (prompt) => {
+    const readlineSync = require('readline-sync');
     return IO.unit(readlineSync.question(prompt));
   };
 
