@@ -34,7 +34,7 @@ const repl = (environment) => {
           if(inputString === 'exit') {
             return exit(IO.done(_));
           } else {
-            return Maybe.match(Cont.eval(Interpreter.eval(inputString)(environment)),{
+            return Maybe.match(Cont.eval(Interpreter.eval(environment)(inputString)),{
               nothing: (message) => {
                 return IO.flatMap(IO.putString(`\nnothing: ${message}`))(_ => {
                   return loop(); 
