@@ -67,7 +67,7 @@ describe("環境をテストする",() => {
   describe("Env.preludeをテストする",() => {
   it("定数をテストする",(done) => {
     const prelude = Env.prelude();
-    Maybe.match(Env.lookup('PI')(prelude),{
+    Maybe.match(Env.lookup('pi')(prelude),{
       nothing: (_) => {
         expect().fail();
         done();

@@ -38,9 +38,9 @@ describe("Interpreterをテストする",() => {
     })
   });
   describe("式を評価する",() => {
-    it("Interpreter.eval(^x { x }(1))は、Maybe.just(1)を返す", function(done) {
+    it("Interpreter.eval(\\x { x }(1))は、Maybe.just(1)を返す", function(done) {
       this.timeout('5s')
-      Maybe.match(Cont.eval(Interpreter.eval(Env.empty())("^x{ x }(1))")),{
+      Maybe.match(Cont.eval(Interpreter.eval(Env.empty())("\\x{ x }(1))")),{
         nothing: (_) => {
           expect().fail();
         },
