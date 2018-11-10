@@ -20,6 +20,24 @@ const Monad = require('../../lib/monad'),
 describe("文法をテストする",() => {
   const Syntax = require('../../lib/syntax.js'),
     Exp = require('../../lib/exp.js');
+  describe("stringパーサーをテストする",() => {
+    it("test", function(done) {
+      Maybe.match(Syntax.string()("\"foo\""), {
+        just: (result) => {
+          Exp.match(result.value, {
+            chars: (content) => {
+              expect(content).to.eql("foo");
+              done();
+            }
+          })
+        },
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        }
+      });
+    })
+  });
   describe("variableをテストする",() => {
     it("foo", function(done) {
       Maybe.match(Syntax.variable()("foo"), {
