@@ -88,19 +88,36 @@ describe("Semanticsをテストする",() => {
       })
     });
   });
-  describe("真理値を評価する",() => {
-    it("evaluate(true)は、Maybe.just(true)を返す",(done) => {
-      const t = Exp.bool(true);
+  describe("値を評価する",() => {
+    describe("文字列を評価する",() => {
+      it("evaluate(文字列)は、Maybe.just(文字列)を返す",(done) => {
+        const t = Exp.string("文字列");
 
-      Maybe.match(Cont.eval(Semantics.evaluate(t)(Env.empty())),{
-        nothing: (_) => {
-          expect().fail();
-        },
-        just: (value) => {
-          expect(value).to.eql(true);
-          done(); 
-        }
-      })
+        Maybe.match(Cont.eval(Semantics.evaluate(t)(Env.empty())),{
+          nothing: (_) => {
+            expect().fail();
+          },
+          just: (value) => {
+            expect(value).to.eql("文字列");
+            done(); 
+          }
+        })
+      });
+    });
+    describe("真理値を評価する",() => {
+      it("evaluate(true)は、Maybe.just(true)を返す",(done) => {
+        const t = Exp.bool(true);
+
+        Maybe.match(Cont.eval(Semantics.evaluate(t)(Env.empty())),{
+          nothing: (_) => {
+            expect().fail();
+          },
+          just: (value) => {
+            expect(value).to.eql(true);
+            done(); 
+          }
+        })
+      });
     });
   });
   describe("変数を評価する",() => {
