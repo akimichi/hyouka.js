@@ -49,32 +49,40 @@ describe("環境をテストする",() => {
       },
       just: (value) => {
         expect(value).to.eql(1);
-        // done();
+        const updatedEnv = Env.extend('b', 2)(env);
+        // console.log(util.inspect(updatedEnv))
+        Maybe.match(Env.lookup('b')(updatedEnv),{
+          nothing: (_) => {
+            expect().fail();
+            done(); 
+          },
+          just: (value) => {
+            expect(value).to.eql(2);
+            done(); 
+          }
+        })
       }
     })
-    const updatedEnv = Env.extend('b', 2)(env);
-    // console.log(util.inspect(updatedEnv))
-    Maybe.match(Env.lookup('b')(updatedEnv),{
+  });
+  describe("Env.preludeをテストする",() => {
+  it("定数をテストする",(done) => {
+    const prelude = Env.prelude();
+    Maybe.match(Env.lookup('PI')(prelude),{
       nothing: (_) => {
         expect().fail();
-        done(); 
+        done();
       },
       just: (value) => {
-        expect(value).to.eql(2);
+        expect(value).to.eql(Math.PI);
         done(); 
       }
     })
   });
-  // it("Env.preludeをテストする",(done) => {
-  //   const env = Env.prelude();
-  //   expect(array.length(env)).to.eql(3) 
-  //   done(); 
-  // });
   // it("Env.loadをテストする",(done) => {
   //   const env = Env.load('../resource/prelude.js')
   //   console.log(env)
   //   expect(array.length(env)).to.eql(2) 
   //   done(); 
-  // });
+  });
 
 });

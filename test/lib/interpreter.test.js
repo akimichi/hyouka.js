@@ -14,13 +14,29 @@ const Monad = require('../../lib/monad'),
   Cont = Monad.Cont,
   ID = Monad.ID;
 
+
 // ### Interpreterのテスト
 describe("Interpreterをテストする",() => {
   const Env = require("../../lib/env.js"),
     Exp = require("../../lib/exp.js"),
+    Syntax = require("../../lib/syntax.js"),
     Semantics = require("../../lib/semantics.js"),
     Interpreter = require("../../lib/interpreter.js");
 
+  describe("mkInterpreterで評価器を合成する",() => {
+    it("calc評価器", function(done) {
+      const calc = Interpreter.mkInterpreter(Syntax.expression)(Semantics.evaluate);
+      Maybe.match(Cont.eval(calc("1 + 2")(Env.empty())),{
+        nothing: (_) => {
+          expect().fail();
+        },
+        just: (value) => {
+          expect(value).to.eql(3);
+          done(); 
+        }
+      })
+    })
+  });
   describe("式を評価する",() => {
     it("Interpreter.eval(^x { x }(1))は、Maybe.just(1)を返す", function(done) {
       this.timeout('5s')
