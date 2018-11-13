@@ -4,7 +4,6 @@ A simple functional programming language interpreter library in node.js
 
 ## Install
 
-
 ~~~
 $ npm install hyouka.js
 ~~~
@@ -23,8 +22,6 @@ const Monad = Hyouka.Monad,
   IO = Monad.IO;
 
 const Env = Hyouka.Env,
-  Exp = Hyouka.Exp,
-  Semantics = Hyouka.Semantics,
   Interpreter = Hyouka.Interpreter;
 
 
@@ -75,13 +72,20 @@ calc> 1 + 2
 1 + 2
 3
 
-calc> and(true false)
-and(true false)
+calc> {and true false}
+{and true false}
 false
 
-calc> pow(2 10)
-pow(2 10)
+calc> {pow 2 10}
+{pow 2 10}
 1024
+
+calc> {(\x x+1) 2}
+{(\x x+1) 2}
+3
+
+calc> exit
+exit
 ~~~
 
 

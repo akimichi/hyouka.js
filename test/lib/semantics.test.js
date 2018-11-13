@@ -274,28 +274,6 @@ describe("Semanticsをテストする",() => {
     });
   });
   describe("四則演算を評価する",() => {
-    // it("1 * 2 = 2",(done) => {
-    //   const expR = Exp.num(1),
-    //     expL = Exp.num(2);
-    //   const x = Exp.variable('x'), 
-    //     y = Exp.variable('y'),
-    //     application = Exp.app(
-    //       Exp.app(
-    //         Exp.lambda(x, 
-    //           Exp.lambda(y, 
-    //             Exp.multiply(x, y)))
-    //         , expR)
-    //       , expL);
-    //   Maybe.match(Semantics.evaluate(application)(Env.empty()),{
-    //     nothing: (_) => {
-    //       expect().fail();
-    //     },
-    //     just: (value) => {
-    //       expect(value).to.eql(2);
-    //       done(); 
-    //     }
-    //   })
-    // });
     it("1 * 2 = 2",(done) => {
       Maybe.match(Parser.parse(Syntax.arithmetic.term())("1*2"), {
         nothing: (message) => {
@@ -372,22 +350,6 @@ describe("Semanticsをテストする",() => {
         }
       });
     });
-    // it("1 + 2 = 3",(done) => {
-    //   const one = Exp.num(1),
-    //     two = Exp.num(2);
-    //   const operator = Exp.binOperator("+"), 
-    //     arithmetic = Exp.binArithmetic(operator,  one, two);
-
-    //   Maybe.match(Semantics.evaluate(arithmetic)(Env.empty()),{
-    //     nothing: (_) => {
-    //       expect().fail();
-    //     },
-    //     just: (value) => {
-    //       expect(value).to.eql(3);
-    //       done(); 
-    //     }
-    //   })
-    // });
   });
   describe("Exp.appを評価する",() => {
     it("(x => succ(x))(1)",(done) => {

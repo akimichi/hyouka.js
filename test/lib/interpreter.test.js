@@ -38,9 +38,8 @@ describe("Interpreterをテストする",() => {
     })
   });
   describe("式を評価する",() => {
-    it("Interpreter.eval(\\x { x }(1))は、Maybe.just(1)を返す", function(done) {
+    it("Interpreter.eval({(\\x  x) 1}は、Maybe.just(1)を返す", function(done) {
       this.timeout('5s')
-      // Maybe.match(Cont.eval(Interpreter.eval(Env.empty())("\\x{ x }(1))")),{
       Maybe.match(Cont.eval(Interpreter.eval(Env.empty())("{(\\x  x) 1}")),{
         nothing: (_) => {
           expect().fail();
@@ -51,10 +50,8 @@ describe("Interpreterをテストする",() => {
         }
       })
     });
-    it("Interpreter.eval( {{(\\x  (\\y x+y)) 1} 2}は、Maybe.just(1)を返す", function(done) {
+    it("Interpreter.eval( {(\\x  (\\y x+y)) 1 2} は、Maybe.just(1)を返す", function(done) {
       this.timeout('5s')
-      // Maybe.match(Cont.eval(Interpreter.eval(Env.empty())("\\x{ x }(1))")),{
-      // Maybe.match(Cont.eval(Interpreter.eval(Env.empty())("{{(\\x  (\\y x+y)) 1} 2}")),{
       Maybe.match(Cont.eval(Interpreter.eval(Env.empty())("{(\\x  (\\y x+y)) 1 2}")),{
         nothing: (_) => {
           expect().fail();
@@ -65,12 +62,11 @@ describe("Interpreterをテストする",() => {
         }
       })
     });
-    it("Interpreter.eval(succ(1))は、Maybe.just(2)を返す",(done) => {
+    it("Interpreter.eval({succ 1})は、Maybe.just(2)を返す",(done) => {
       const env = Env.extend(
         'succ', 
         (n) => { return Maybe.just(n + 1)}
       )(Env.empty());
-      // Maybe.match(Cont.eval(Interpreter.eval(env)("succ(1)")),{
       Maybe.match(Cont.eval(Interpreter.eval(env)("{succ 1}")),{
         nothing: (_) => {
           expect().fail();
@@ -81,7 +77,7 @@ describe("Interpreterをテストする",() => {
         }
       })
     });
-    it("Interpreter.eval(add(1 2))は、Maybe.just(2)を返す", function(done) {
+    it("Interpreter.eval({add 1 2})は、Maybe.just(2)を返す", function(done) {
       this.timeout('5s')
       const env = Env.extend(
         'add', 
@@ -91,7 +87,6 @@ describe("Interpreterをテストする",() => {
           })
         }
       )(Env.empty());
-      // Maybe.match(Cont.eval(Interpreter.eval(env)("add(1 2)")),{
       Maybe.match(Cont.eval(Interpreter.eval(env)("{add 1 2}")),{
         nothing: (_) => {
           expect().fail();
