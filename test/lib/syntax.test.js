@@ -60,7 +60,8 @@ describe("文法をテストする",() => {
     describe("appをexpressionとしてパースする", () => {
       it("succ(1)", function(done) {
         this.timeout('5s')
-        return Maybe.match(Parser.parse(Syntax.expression())("succ(1)"), {
+        // return Maybe.match(Parser.parse(Syntax.expression())("succ(1)"), {
+        return Maybe.match(Parser.parse(Syntax.expression())("{succ 1}"), {
           nothing: (message) => {
             console.log(message)
             expect().to.fail()
@@ -274,8 +275,9 @@ describe("文法をテストする",() => {
     });
   });
   describe("lambdaをテストする",(done) => {
-    it("\\x { x }", (done) => {
-      Maybe.match(Syntax.lambda()("\\x { x }"), {
+    it("(\\x x)", (done) => {
+      // Maybe.match(Syntax.lambda()("\\x { x }"), {
+      Maybe.match(Syntax.lambda()("(\\x x)"), {
         nothing: (message) => {
           expect().to.fail()
           done();
@@ -299,9 +301,10 @@ describe("文法をテストする",() => {
         }
       });
     });
-    it("\\x { x + 1 }", function (done) {
+    // it("\\x { x + 1 }", function (done) {
+    it("(\\x x+1)", function (done) {
       this.timeout('5s')
-      Maybe.match(Syntax.lambda()("\\x { x + 1 }"), {
+      Maybe.match(Syntax.lambda()("(\\x x+1)"), {
         nothing: (message) => {
           expect().to.fail()
           done();
@@ -349,8 +352,9 @@ describe("文法をテストする",() => {
      *    Exp.lambda(y, 
      *      Exp.add(x, y)))
      */
-    it("\\x { \\y {x + y}}", (done) => {
-      Maybe.match(Syntax.lambda()("\\x { \\y {x + y} }"), {
+    // it("\\x { \\y {x + y}}", (done) => {
+    it("(\\x (\\y x+y ))", (done) => {
+      Maybe.match(Syntax.lambda()("(\\x (\\y x+y ))"), {
         just: (result) => {
           Exp.match(result.value, {
             lambda: (x, body) => {
@@ -382,9 +386,11 @@ describe("文法をテストする",() => {
               , Exp.num(1))
   */ 
   describe("appをテストする",() => {
-    it("\\x { x }(1)をテストする", function(done) {
+    // it("\\x { x }(1)をテストする", function(done) {
+    it("(\\x x)(1)をテストする", function(done) {
       this.timeout('5s')
-      Maybe.match(Syntax.app()("\\x { x }(1)"), {
+      // Maybe.match(Syntax.app()("(\\x x)(1)"), {
+      Maybe.match(Syntax.app()("{(\\x x) 1}"), {
         nothing: (message) => {
           expect().to.fail()
           done();
@@ -419,9 +425,11 @@ describe("文法をテストする",() => {
      * app(lambda(variable(x),add(variable(x), num(1))))
      *
      */
-    it("\\x { x + 1 }(1) をテストする", function(done) {
+    // it("\\x { x + 1 }(1) をテストする", function(done) {
+    it("(\\x x + 1 )(1) をテストする", function(done) {
       this.timeout('5s')
-      Maybe.match(Syntax.app()("\\x { x + 1 }(1)"), {
+      // Maybe.match(Syntax.app()("(\\x x + 1)(1)"), {
+      Maybe.match(Syntax.app()("{(\\x x + 1) 1}"), {
         nothing: (message) => {
           expect().to.fail()
           done();
@@ -462,10 +470,10 @@ describe("文法をテストする",() => {
      *     , num(1))
      *
      */
-
-    it("(\\x { \\y { x + y }}(1))(2) をテストする", function(done) {
+    it("{{(\\x (\\y x + y)) 1} 2} をテストする", function(done) {
       this.timeout('5s')
-      Maybe.match(Syntax.app()("(\\x { \\y { x + y }}(1))(2)"), {
+      // Maybe.match(Syntax.app()("{{(\\x (\\y x + y)) 1} 2}"), {
+      Maybe.match(Syntax.app()("{(\\x (\\y x + y)) 1 2}"), {
         nothing: (message) => {
           expect().to.fail()
           done();
@@ -473,8 +481,8 @@ describe("文法をテストする",() => {
         just: (result) => {
           Exp.match(result.value, {
             app: (operator, operand) => {
-              // Exp.match(operator, {
-              //   app: (operator, operand) => {
+              Exp.match(operator, {
+                app: (operator, operand) => {
                   Exp.match(operator, {
                     lambda: (arg, body) => {
                       Exp.match(arg, {
@@ -485,13 +493,44 @@ describe("文法をテストする",() => {
                       })
                     }
                   })
-                // }
-              // })
+                }
+              })
             }
           })
         }
       });
     });
+
+    // it("(\\x { \\y { x + y }}(1))(2) をテストする", function(done) {
+    // it("(\\x (\\y x + y ))(1)(2) をテストする", function(done) {
+    //   this.timeout('5s')
+    //   Maybe.match(Syntax.app()("((\\x (\\y x + y))(1))(2)"), {
+    //     nothing: (message) => {
+    //       expect().to.fail()
+    //       done();
+    //     },
+    //     just: (result) => {
+    //       Exp.match(result.value, {
+    //         app: (operator, operand) => {
+    //           Exp.match(operator, {
+    //             app: (operator, operand) => {
+    //               Exp.match(operator, {
+    //                 lambda: (arg, body) => {
+    //                   Exp.match(arg, {
+    //                     variable: (name) => {
+    //                       expect(name).to.eql("x");
+    //                       done()
+    //                     }
+    //                   })
+    //                 }
+    //               })
+    //             }
+    //           })
+    //         }
+    //       })
+    //     }
+    //   });
+    // });
     // it("\\x { \\y { x + y }}(1)(2) をテストする", function(done) {
     //   this.timeout('5s')
     //   Maybe.match(Syntax.app()("\\x { \\y { x + y }}(1)(2)"), {
@@ -527,7 +566,8 @@ describe("文法をテストする",() => {
       Exp.app(Exp.variable(succ), Exp.num(1))
     */ 
     it("succ(1)をテストする", function(done) {
-      return Maybe.match(Parser.parse(Syntax.app())("succ(1)"), {
+      // return Maybe.match(Parser.parse(Syntax.app())("succ(1)"), {
+      return Maybe.match(Parser.parse(Syntax.app())("{succ 1}"), {
         nothing: (message) => {
           expect().to.fail()
           done();
@@ -567,7 +607,8 @@ describe("文法をテストする",() => {
               , Exp.num(1))
     */ 
     it("add(1 2)をテストする", function(done) {
-      return Maybe.match(Parser.parse(Syntax.app())("add(1 2)"), {
+      // return Maybe.match(Parser.parse(Syntax.app())("add(1 2)"), {
+      return Maybe.match(Parser.parse(Syntax.app())("{add 1 2}"), {
         nothing: (message) => {
           expect().to.fail()
           done();
