@@ -55,6 +55,22 @@ describe("文法をテストする",() => {
         }
       });
     })
+    it("PI", function(done) {
+      Maybe.match(Syntax.variable()("PI"), {
+        just: (result) => {
+          Exp.match(result.value, {
+            variable: (name) => {
+              expect(name).to.eql("PI");
+              done();
+            }
+          })
+        },
+        nothing: (message) => {
+          expect().to.fail()
+          done();
+        }
+      });
+    })
   }),
   describe("expressionをテストする",() => {
     describe("appをexpressionとしてパースする", () => {
