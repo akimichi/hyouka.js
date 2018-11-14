@@ -312,7 +312,8 @@ describe("Semanticsをテストする",() => {
         }
       });
     });
-    it("2 % 4 = 2",(done) => {
+    it("2 % 4 = 2", function(done) {
+      this.timeout('7s')
       Maybe.match(Parser.parse(Syntax.arithmetic.expr())("2 % 4"), {
         nothing: (message) => {
           expect().to.fail()
@@ -322,6 +323,7 @@ describe("Semanticsをテストする",() => {
           Maybe.match(Cont.eval(Semantics.evaluate(result.value)(Env.empty())),{
             nothing: (_) => {
               expect().fail();
+              done(); 
             },
             just: (value) => {
               expect(value).to.eql(2);

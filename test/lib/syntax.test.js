@@ -248,7 +248,8 @@ describe("文法をテストする",() => {
     });
   });
   describe("lambdaをテストする",(done) => {
-    it("(\\x x)", (done) => {
+    it("(\\x x)", function(done) {
+      this.timeout('3s')
       Maybe.match(Syntax.lambda()("(\\x x)"), {
         nothing: (message) => {
           expect().to.fail()
@@ -274,7 +275,7 @@ describe("文法をテストする",() => {
       });
     });
     it("(\\x x+1)", function (done) {
-      this.timeout('5s')
+      this.timeout('3s')
       Maybe.match(Syntax.lambda()("(\\x x+1)"), {
         nothing: (message) => {
           expect().to.fail()
@@ -322,7 +323,8 @@ describe("文法をテストする",() => {
      *    Exp.lambda(y, 
      *      Exp.add(x, y)))
      */
-    it("(\\x (\\y x+y ))", (done) => {
+    it("(\\x (\\y x+y ))", function(done) {
+      this.timeout('3s')
       Maybe.match(Syntax.lambda()("(\\x (\\y x+y ))"), {
         just: (result) => {
           Exp.match(result.value, {
@@ -508,6 +510,7 @@ describe("文法をテストする",() => {
               , Exp.num(1))
     */ 
     it("{add 1 2}をテストする", function(done) {
+      this.timeout('3s')
       return Maybe.match(Parser.parse(Syntax.app())("{add 1 2}"), {
         nothing: (message) => {
           expect().to.fail()
