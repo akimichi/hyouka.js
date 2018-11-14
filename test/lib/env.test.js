@@ -58,7 +58,17 @@ describe("環境をテストする",() => {
           },
           just: (value) => {
             expect(value).to.eql(2);
-            done(); 
+            Maybe.match(Env.lookup('b')(Env.extend('b', 3)(updatedEnv)),{
+              nothing: (_) => {
+                expect().fail();
+                done(); 
+              },
+              just: (value) => {
+                expect(value).to.eql(3);
+                done(); 
+              }
+            })
+            // done(); 
           }
         })
       }
