@@ -17,14 +17,14 @@ describe("Stateモナドをテストする",() => {
     next();
   });
   it("runのテスト", (next) => {
-    const instance = State.unit(1);
-    pair.match(instance.run([]),{
+    const state = State.unit(1);
+    pair.match(state.run([]),{
       cons: (left, right) => {
         expect(left).to.eql(1);
         expect(right).to.eql([]);
+        next();
       }
     });
-    next();
   });
   it("evalのテスト", (next) => {
     const instance = State.unit(1);
@@ -52,9 +52,9 @@ describe("Stateモナドをテストする",() => {
     //     });
     //   });
     // };
+   
     // pop :: State [Int] Int
     // pop = state $ \(x:xs) -> (x, xs)
-
     const pop = State.state((xxs) => {
       return array.match(xxs, {
         cons: (x, xs) => {
