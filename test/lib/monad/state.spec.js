@@ -40,6 +40,8 @@ describe("Stateモナドをテストする",() => {
   describe("Stateモナドでスタックを表現する",() => {
     // push :: Int -> State Stack ()
     // push a = state $ \xs -> ((), a:xs)
+    //
+    // push:: Value -> State[Value]
     const push = (a) => {
       return State.state(xs => {
         return pair.cons(undefined, array.cons(a, xs));
