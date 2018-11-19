@@ -26,8 +26,10 @@ const inputAction = (prompt) => {
   return IO.unit(readlineSync.question(prompt));
 };
 
+// repl:: Env -> Cont[IO]
 const repl = (environment) => {
   return Cont.callCC(exit => {
+    // loop:: Null -> IO
     const loop = () => {
       return IO.flatMap(inputAction("\ncalc> "))(inputString  => {
         return IO.flatMap(IO.putString(inputString))(_ => {

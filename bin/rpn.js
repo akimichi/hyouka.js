@@ -47,90 +47,120 @@ const Stack = {
 const interpret = (syntax) => (evaluator) => (environment) => (state) => (line) => {
 }
 
-const repl = (environment) => {
+const RPNSyntax = {
+  expression: (_) => {
+    return Parser.alt(RPNSyntax.operator(), RPNSyntax.num());
+  },
+  num: (_) => {
+    return Parser.flatMap(Parser.numeric())(number => {
+      return Parser.unit(Exp.num(number));
+    });
+  },
+  operator: (_) => {
+    const plus = Parser.token(Parser.char("+")),
+      minus = Parser.token(Parser.char("-")),
+      multiply = Parser.token(Parser.char("*")),
+      divide = Parser.token(Parser.char("/"));
+    const x = Exp.variable('x'), y = Exp.variable('y');
+
+    return Parser.flatMap(
+      Parser.alt(plus,
+        Parser.alt(minus,
+          Parser.alt(multiply,divide))))(symbol => {
+            console.log(`symbol: ${symbol}`)
+            switch(symbol) {
+              case "+":
+                const lambda = Exp.lambda(x, Exp.lambda(y, Exp.add(x, y)));
+                return Parser.unit(lambda);
+              case "-":
+                const subtract = (expL) => (expR) => {
+                  return Exp.app(
+                    Exp.app(
+                      Exp.lambda(x, Exp.lambda(y, 
+                        Exp.subtract(x, y)))
+                      , expR) , expL);
+                };
+                return Parser.unit(subtract);
+              case "*":
+                const multiply = (expL) => (expR) => {
+                  return Exp.app(
+                    Exp.app(
+                      Exp.lambda(x, Exp.lambda(y, 
+                        Exp.multiply(x, y)))
+                      , expR) , expL);
+                };
+                return Parser.unit(multiply);
+              case "/":
+                const divide = (expL) => (expR) => {
+                  return Exp.app(
+                    Exp.app(
+                      Exp.lambda(x, Exp.lambda(y, 
+                        Exp.divide(x, y)))
+                      , expR) , expL);
+                };
+                return Parser.unit(divide);
+              default: 
+                return Parser.zero;
+            }
+          });
+  }
+}
+
+// repl:: Env -> Cont[IO]
+const repl = (environment) => (initialStack) => {
   return Cont.callCC(exit => {
 
-    // loop:: Stack -> State
-    const loop = () => {
+    // loop:: Stack -> State[IO]
+    const loop = (stack) => {
       return IO.flatMap(inputAction("\nrpn> "))(inputString  => {
         return IO.flatMap(IO.putString(inputString))(_ => {
           if(inputString === 'exit') {
             return exit(IO.done(_));
           } else {
-            return Maybe.flatMap(Parser.parse(syntax())(line))(result =>  {
+            // console.log(`inputString: ${inputString}`)
+            return Maybe.flatMap(Parser.parse(RPNSyntax.expression())(inputString))(result =>  {
               const ast = result.value;
               return Exp.match(ast, {
                 // 数値
                 num: (value) => { 
                   // 数値の場合、スタックに数値をpushする
                   return IO.flatMap(IO.putString(`\n${value}`))(_ => {
-                    const currentState = Stack.push(ast);
-                    return loop(currentState); 
+                    return loop(State.exec(Stack.push(value))(stack)); 
                   });
                 },
-                // 真理値の評価
-                bool: (value) => { 
+                lambda: (variable, body) => {
+                  console.log(`lambda`)
+                  // operation:: State[IO]
+                  const operation = State.flatMap(Stack.pop)(arg1 => {
+                    console.log(`arg1: ${arg1}`)
+                    return State.flatMap(Stack.pop)(arg2 => {
+                      console.log(`arg2: ${arg2}`)
+                      const lambda = ast,
+                        app = Exp.app(Exp.app(lambda, Exp.num(arg1)),Exp.num(arg2))
+                      return Maybe.match(Cont.eval(Semantics.evaluate(app)(environment)), {
+                        nothing: (message) => {
+                          return State.unit(undefined)
+                        },
+                        just: (value) => {
+                          return State.unit(value)
+                        }
+                      });
+                    });
+                  });
+                  const value = State.eval(operation)(stack);
                   return IO.flatMap(IO.putString(`\n${value}`))(_ => {
-                    const currentState = Stack.push(ast);
-                    return loop(currentState); 
+                    return loop(State.exec(Stack.push(value))(stack)); 
                   });
                 },
-                // 文字列の評価
-                string: (value) => { 
-                  return IO.flatMap(IO.putString(`\n${value}`))(_ => {
-                    const currentState = Stack.push(ast);
-                    return loop(currentState); 
-                  });
-                },
-                // 日付の評価
-                date: (value) => { 
-                  return IO.flatMap(IO.putString(`\n${value}`))(_ => {
-                    const currentState = Stack.push(ast);
-                    return loop(currentState); 
-                  });
-                },
-                // 変数の評価
-                variable: (name) => {
-                  return IO.flatMap(IO.putString(`\n${value}`))(_ => {
-                    const currentState = Stack.push(ast);
-                    return loop(currentState); 
-                  });
-                  // return Env.lookup(name)(env);
-                },
-                /* 関数定義（λ式）の評価  */
-                lambda: (identifier, body) => {
-                },
-                /* 関数適用の評価 */
-                // app: (Exp, Exp) -> Reader[Maybe[Value]]
-                app: (operator, operand) => {
-                }
               })
-
-            return Maybe.match(Cont.eval(Interpreter.eval(environment)(inputString)),{
-              nothing: (message) => {
-                return IO.flatMap(IO.putString(`\nnothing: ${message}`))(_ => {
-                  return loop(stack); 
-                });
-              },
-              just: (value) => {
-                if(isNaN(parseInt(value))) {
-                  switch(parseInt(value)) {
-                    case "+":
-                      Maybe.match(Cont.eval(Interpreter.eval(environment)(inputString)),{
-                    default:
-                      return exit(IO.done(null));
-                  }
-                } else {
-                }
-              }
             })
           }
         });
       });
     };
-    return Cont.unit(loop(Stack.empty()))
+    return Cont.unit(loop(initialStack))
   });
 };
 
-IO.run(Cont.eval(repl(Env.prelude())))
+IO.run(Cont.eval(repl(Env.prelude())(Stack.empty())))
 

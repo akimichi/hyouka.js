@@ -80,6 +80,9 @@ describe("Stateモナドをテストする",() => {
       expect(
         pair.left(operation.run([5,8,2,1]))
       ).to.eql(2);
+      expect(
+        State.eval(operation)([5,8,2,1])
+      ).to.eql(2);
       next();
     });
   });
