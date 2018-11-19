@@ -1,6 +1,6 @@
 # hyouka.js
 
-A simple functional programming language interpreter library in node.js
+A simple library for functional programming language interpreter in node.js.
 
 ## Install
 
@@ -62,11 +62,12 @@ IO.run(Cont.eval(repl(Env.prelude())))
 ~~~
 
 
+## sample programs
 
-### sample program -- calculator
+### simple calculator
 
 ~~~
-$ npm run hyouka-calc
+$ npm run calc
 
 calc> 1 + 2
 1 + 2
@@ -86,6 +87,26 @@ calc> {(\x x+1) 2}
 
 calc> exit
 exit
+~~~
+
+### RPN calculator
+
+A Reverse Polish Notation calculator example.
+
+~~~
+$ npm run rpn
+
+RPN> 1
+1
+RPN> 2
+2
+RPN> +
+3
+RPN> 4
+4
+RPN> *
+12
+RPN> ^C
 ~~~
 
 

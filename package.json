@@ -1,6 +1,6 @@
 {
   "name": "hyouka.js",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "A simple functional programming interpreter library in node.js",
   "main": "index.js",
   "directories": {
@@ -10,8 +10,8 @@
   },
   "scripts": {
     "test": "mocha -R spec --recursive test/",
-    "hyouka-cli": "bin/hyouka.js",
-    "hyouka-calc": "bin/calc.js"
+    "rpn": "bin/rpn.js",
+    "calc": "bin/calc.js"
   },
   "bin": {
     "hyouka": "./bin/hyouka.js"

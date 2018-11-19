@@ -18,8 +18,7 @@ const kansuu = require('kansuu.js'),
 
 const Env = require("../lib/env.js"),
   Exp = require("../lib/exp.js"),
-  Semantics = require("../lib/semantics.js"),
-  Interpreter = require("../lib/interpreter.js");
+  Semantics = require("../lib/semantics.js");
 
 const inputAction = (prompt) => {
   const readlineSync = require('readline-sync');
@@ -43,9 +42,6 @@ const Stack = {
     });
   })
 };
-
-const interpret = (syntax) => (evaluator) => (environment) => (state) => (line) => {
-}
 
 const RPNSyntax = {
   expression: (_) => {
@@ -87,51 +83,42 @@ const RPNSyntax = {
 const repl = (environment) => (initialStack) => {
   return Cont.callCC(exit => {
 
-    // loop:: Stack -> State[IO]
     const loop = (stack) => {
-      return IO.flatMap(inputAction("\nrpn> "))(inputString  => {
-        return IO.flatMap(IO.putString(inputString))(_ => {
-          if(inputString === 'exit') {
-            return exit(IO.done(_));
-          } else {
-            return Maybe.flatMap(Parser.parse(RPNSyntax.expression())(inputString))(result =>  {
-              const ast = result.value;
-              return Exp.match(ast, {
-                num: (value) => { // 数値の場合、スタックに数値をpushする
-                  return IO.flatMap(IO.putString(`\n${value}`))(_ => {
-                    return loop(State.exec(Stack.push(value))(stack)); 
-                  });
-                },
-                lambda: (variable, body) => {
-                  // operation:: State[IO]
-                  const operation = State.flatMap(Stack.pop)(arg1 => {
-                    return State.flatMap(Stack.pop)(arg2 => {
-                      const lambda = ast,
-                        app = Exp.app(Exp.app(lambda, Exp.num(arg1)),Exp.num(arg2))
-                      return Maybe.match(Cont.eval(Semantics.evaluate(app)(environment)), {
-                        nothing: (message) => {
-                          return State.unit(undefined)
-                        },
-                        just: (value) => {
-                          return State.unit(value)
-                        }
-                      });
+      return IO.flatMap(inputAction("\nRPN> "))(inputString  => {
+        if(inputString === 'exit') {
+          return exit(IO.done(_));
+        } else {
+          return Maybe.flatMap(Parser.parse(RPNSyntax.expression())(inputString))(result =>  {
+            const ast = result.value;
+            return Exp.match(ast, {
+              num: (value) => { // 数値の場合、スタックに数値をpushする
+                return IO.flatMap(IO.putString(`${value}`))(_ => {
+                  return loop(State.exec(Stack.push(value))(stack)); 
+                });
+              },
+              lambda: (variable, body) => {
+                const operation = State.flatMap(Stack.pop)(arg1 => {
+                  return State.flatMap(Stack.pop)(arg2 => {
+                    const lambda = ast,
+                      app = Exp.app(Exp.app(lambda, Exp.num(arg1)),Exp.num(arg2))
+                    return Maybe.flatMap(Cont.eval(Semantics.evaluate(app)(environment)))(value => {
+                      return State.unit(value)
                     });
                   });
-                  const value = State.eval(operation)(stack);
-                  return IO.flatMap(IO.putString(`\n${value}`))(_ => {
-                    return loop(State.exec(Stack.push(value))(stack)); 
-                  });
-                },
-              })
+                });
+                const value = State.eval(operation)(stack);
+                return IO.flatMap(IO.putString(`${value}`))(_ => {
+                  return loop(State.exec(Stack.push(value))(stack)); 
+                });
+              },
             })
-          }
-        });
+          })
+        }
       });
     };
     return Cont.unit(loop(initialStack))
   });
 };
 
-IO.run(Cont.eval(repl(Env.prelude())(Stack.empty())))
+IO.run(Cont.eval(repl(Env.empty())(Stack.empty())))
 

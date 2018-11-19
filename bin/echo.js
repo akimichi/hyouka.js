@@ -26,11 +26,6 @@ const inputAction = (prompt) => {
   return IO.unit(readlineSync.question(prompt));
 };
 
-
-// IO.run(IO.flatMap(promptAction)(_ => {
-//   return IO.done(_);
-// }))
-
 const repl = Cont.callCC(exit => {
   const loop = () => {
     return IO.flatMap(inputAction("\nprompt> "))(inputString  => {
@@ -45,5 +40,6 @@ const repl = Cont.callCC(exit => {
   };
   return Cont.unit(loop())
 });
+
 IO.run(Cont.eval(repl))
 
