@@ -67,38 +67,15 @@ const RPNSyntax = {
       Parser.alt(plus,
         Parser.alt(minus,
           Parser.alt(multiply,divide))))(symbol => {
-            console.log(`symbol: ${symbol}`)
             switch(symbol) {
               case "+":
-                const lambda = Exp.lambda(x, Exp.lambda(y, Exp.add(x, y)));
-                return Parser.unit(lambda);
+                return Parser.unit(Exp.lambda(x, Exp.lambda(y, Exp.add(x, y))));
               case "-":
-                const subtract = (expL) => (expR) => {
-                  return Exp.app(
-                    Exp.app(
-                      Exp.lambda(x, Exp.lambda(y, 
-                        Exp.subtract(x, y)))
-                      , expR) , expL);
-                };
-                return Parser.unit(subtract);
+                return Parser.unit(Exp.lambda(x, Exp.lambda(y, Exp.subtract(x, y))));
               case "*":
-                const multiply = (expL) => (expR) => {
-                  return Exp.app(
-                    Exp.app(
-                      Exp.lambda(x, Exp.lambda(y, 
-                        Exp.multiply(x, y)))
-                      , expR) , expL);
-                };
-                return Parser.unit(multiply);
+                return Parser.unit(Exp.lambda(x, Exp.lambda(y, Exp.multiply(x, y))));
               case "/":
-                const divide = (expL) => (expR) => {
-                  return Exp.app(
-                    Exp.app(
-                      Exp.lambda(x, Exp.lambda(y, 
-                        Exp.divide(x, y)))
-                      , expR) , expL);
-                };
-                return Parser.unit(divide);
+                return Parser.unit(Exp.lambda(x, Exp.lambda(y, Exp.divide(x, y))));
               default: 
                 return Parser.zero;
             }
@@ -117,24 +94,18 @@ const repl = (environment) => (initialStack) => {
           if(inputString === 'exit') {
             return exit(IO.done(_));
           } else {
-            // console.log(`inputString: ${inputString}`)
             return Maybe.flatMap(Parser.parse(RPNSyntax.expression())(inputString))(result =>  {
               const ast = result.value;
               return Exp.match(ast, {
-                // 数値
-                num: (value) => { 
-                  // 数値の場合、スタックに数値をpushする
+                num: (value) => { // 数値の場合、スタックに数値をpushする
                   return IO.flatMap(IO.putString(`\n${value}`))(_ => {
                     return loop(State.exec(Stack.push(value))(stack)); 
                   });
                 },
                 lambda: (variable, body) => {
-                  console.log(`lambda`)
                   // operation:: State[IO]
                   const operation = State.flatMap(Stack.pop)(arg1 => {
-                    console.log(`arg1: ${arg1}`)
                     return State.flatMap(Stack.pop)(arg2 => {
-                      console.log(`arg2: ${arg2}`)
                       const lambda = ast,
                         app = Exp.app(Exp.app(lambda, Exp.num(arg1)),Exp.num(arg2))
                       return Maybe.match(Cont.eval(Semantics.evaluate(app)(environment)), {
