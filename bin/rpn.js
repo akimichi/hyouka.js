@@ -81,41 +81,46 @@ const RPNSyntax = {
 
 // repl:: Env -> Cont[IO]
 const repl = (environment) => (initialStack) => {
-  return Cont.callCC(exit => {
 
+  return Cont.callCC(exit => {
     const loop = (stack) => {
       return IO.flatMap(inputAction("\nRPN> "))(inputString  => {
-        if(inputString === 'exit') {
-          return exit(IO.done(_));
-        } else {
-          return Maybe.flatMap(Parser.parse(RPNSyntax.expression())(inputString))(result =>  {
-            const ast = result.value;
-            return Exp.match(ast, {
-              num: (value) => { // 数値の場合、スタックに数値をpushする
-                return IO.flatMap(IO.putString(`${value}`))(_ => {
-                  return loop(State.exec(Stack.push(value))(stack)); 
-                });
-              },
-              lambda: (variable, body) => {
-                const operation = State.flatMap(Stack.pop)(arg1 => {
-                  return State.flatMap(Stack.pop)(arg2 => {
-                    const lambda = ast,
-                      app = Exp.app(Exp.app(lambda, Exp.num(arg1)),Exp.num(arg2))
-                    return Maybe.flatMap(Cont.eval(Semantics.evaluate(app)(environment)))(value => {
-                      return State.unit(value)
+        switch(inputString) {
+          case "exit":
+            return exit(IO.done(inputString));
+          case "stack":
+            return IO.flatMap(IO.putString(`[${stack}]`))(_ => {
+              return loop(stack); 
+            });
+          default:
+            return Maybe.flatMap(Parser.parse(RPNSyntax.expression())(inputString))(result =>  {
+              const ast = result.value;
+              return Exp.match(ast, {
+                num: (value) => { // 数値の場合、スタックに数値をpushする
+                  return IO.flatMap(IO.putString(`${value}`))(_ => {
+                    return loop(State.exec(Stack.push(value))(stack)); 
+                  });
+                },
+                lambda: (variable, body) => {
+                  const operation = State.flatMap(Stack.pop)(arg1 => {
+                    return State.flatMap(Stack.pop)(arg2 => {
+                      const lambda = ast,
+                        app = Exp.app(Exp.app(lambda, Exp.num(arg1)),Exp.num(arg2))
+                      return Maybe.flatMap(Cont.eval(Semantics.evaluate(app)(environment)))(value => {
+                        return State.unit(value)
+                      });
                     });
                   });
-                });
-                const value = State.eval(operation)(stack);
-                return IO.flatMap(IO.putString(`${value}`))(_ => {
-                  return loop(State.exec(Stack.push(value))(stack)); 
-                });
-              },
-            })
-          })
+                  const value = State.eval(operation)(stack);
+                  return IO.flatMap(IO.putString(`${value}`))(_ => {
+                    return loop(State.exec(Stack.push(value))(stack)); 
+                  });
+                },
+              })
+            });
         }
       });
-    };
+    }; // end of loop
     return Cont.unit(loop(initialStack))
   });
 };

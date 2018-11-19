@@ -102,6 +102,8 @@ RPN> 2
 2
 RPN> +
 3
+RPN> stack
+[3,2,1]
 RPN> 4
 4
 RPN> *
