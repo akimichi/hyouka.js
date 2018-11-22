@@ -1,6 +1,6 @@
 # hyouka.js
 
-A simple library for functional programming language interpreter in node.js.
+A simple toolkit library for building functional programming interpreter in node.js
 
 ## Install
 
@@ -15,15 +15,13 @@ $ npm install hyouka.js
 'use strict';
 
 const Hyouka = require('hyouka.js');
-
-const Monad = Hyouka.Monad,
-  Maybe = Monad.Maybe,
-  Cont = Monad.Cont,
-  IO = Monad.IO;
-
-const Env = Hyouka.Env,
+  Env = Hyouka.Env,
   Interpreter = Hyouka.Interpreter;
 
+const Monad = Hyouka.Monad,
+  Maybe = Monad.Maybe, // Maybe Monad
+  Cont = Monad.Cont,   // Continuation Monad
+  IO = Monad.IO;       // IO Monad
 
 const repl = (environment) => {
   const inputAction = (prompt) => {
