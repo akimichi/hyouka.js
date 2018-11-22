@@ -83,13 +83,16 @@ calc> {(\x x+1) 2}
 {(\x x+1) 2}
 3
 
+calc> {(\x (\y x+y)) 1 2}
+{(\x (\y x+y)) 1 2}
+3
 calc> exit
 exit
 ~~~
 
 ### RPN calculator
 
-A Reverse Polish Notation calculator example.
+An example of Reverse Polish Notation calculator.
 
 ~~~
 $ npm run rpn

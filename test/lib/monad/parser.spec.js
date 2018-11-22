@@ -68,27 +68,8 @@ describe("Monadic Parser", () => {
           expect().to.fail()
         }
       });
-      // expect(
-      //   Parser.parse(Parser.zero)("abc")
-      // ).to.eql(
-      //   [] 
-      // );
     });
     describe("Parser#append", () => {
-      //   it("Parser#appendは、パースの論理和を意味する", (next) => {
-      //     const all_or_nothing = 
-      //     expect(
-      //       Parser.parse(Parser.letter())("letter")
-      //     ).to.eql(
-      //       [{value:'l', remaining: 'etter'}]
-      //     );
-      //     expect(
-      //       Parser.letter()("ABC")
-      //     ).to.eql(
-      //       [{value:'A', remaining: 'BC'}]
-      //     );
-      //     next();
-      //   });
       it("Parser#letterは、アルファベット文字を文字だけ認識する", (next) => {
         Maybe.match(Parser.parse(Parser.letter())("letter"), {
           nothing: (message) => {
@@ -100,17 +81,6 @@ describe("Monadic Parser", () => {
             next();
           }
         });
-        // expect(
-        //   Parser.parse(Parser.letter())("letter")
-        // ).to.eql(
-        //   [{value:'l', remaining: 'etter'}]
-        // );
-        // expect(
-        //   Parser.letter()("ABC")
-        // ).to.eql(
-        //   [{value:'A', remaining: 'BC'}]
-        // );
-        // next();
       });
       it("digits", (next) => {
         Maybe.match(Parser.parse(Parser.digits())("1"), {
@@ -220,6 +190,32 @@ describe("Monadic Parser", () => {
         // next();
       });
     });
+    describe("Parser#regex", () => {
+      it("regexは、正規表現にマッチしたら成功する", (next) => {
+        Maybe.match(Parser.regex(/[0-9a-f]+/)("a0"), {
+          nothing: (message) => {
+            expect().to.fail()
+          },
+          just: (result) => {
+            expect(result.value).to.eql('a0')
+            expect(result.remaining).to.eql('')
+            next();
+          }
+        });
+      });
+      it("days", (next) => {
+        Maybe.match(Parser.regex(/days?/)("day"), {
+          nothing: (message) => {
+            expect().to.fail()
+          },
+          just: (result) => {
+            expect(result.value).to.eql('day')
+            expect(result.remaining).to.eql('')
+            next();
+          }
+        });
+      });
+    });
     describe("Parser#sat", () => {
       it("charは、指定した一文字だけを認識する", (next) => {
         Maybe.match(Parser.char("a")("a"), {
@@ -232,12 +228,6 @@ describe("Monadic Parser", () => {
             next();
           }
         });
-        // expect(
-        //   Parser.char("a")("a")
-        // ).to.eql(
-        //   [{value:'a', remaining: ''}]
-        // );
-        // next();
       });
       it("charsは指定した文字列を認識する", (next) => {
         Maybe.match(Parser.chars("abc")("abcdef"), {
@@ -250,12 +240,6 @@ describe("Monadic Parser", () => {
             next();
           }
         });
-        // expect(
-        //   Parser.chars("abc")("abcdef")
-        // ).to.eql(
-        //   [{value:"abc", remaining: 'def'}]
-        // );
-        // next();
       });
       it("Parser#lower", (next) => {
         Maybe.match(Parser.lower("a")("a"), {
@@ -268,12 +252,6 @@ describe("Monadic Parser", () => {
             next();
           }
         });
-        // expect(
-        //   Parser.lower("a")("a")
-        // ).to.eql(
-        //   [{value:'a', remaining: ''}]
-        // );
-        // next();
       });
       it("Parser#upper", (next) => {
         Maybe.match(Parser.upper("a")("a"), {
@@ -285,43 +263,7 @@ describe("Monadic Parser", () => {
             next();
           }
         });
-        // expect(
-        //   Parser.upper("a")("a")
-        // ).to.eql(
-        //   []
-        // );
-        // next();
       });
-      //   it("anyCharは、空白、改行、タブ以外の全ての一文字にマッチする", (next) => {
-      //     expect(
-      //       Parser.anyChar()("ア")
-      //     ).to.eql(
-      //       [{value:'ア', remaining: ''}]
-      //     );
-      //     next();
-      //   });
-      //   it("anyStringは、空白、改行、タブ以外の全ての文字列にマッチする", (next) => {
-      //     expect(
-      //       Parser.anyString()("アイウエオ")
-      //     ).to.eql(
-      //       [{value:'アイウエオ', remaining: ''}]
-      //     );
-      //     expect(
-      //       Parser.anyString()("example.address@mail.com")
-      //     ).to.eql(
-      //       [{value:'example.address@mail.com', remaining: ''}]
-      //     );
-      //     next();
-      //   });
-      //   // it("quotedStringは、クオートされた文字列にマッチする", (next) => {
-      //   //   expect(
-      //   //     Parser.quotedString()("\"string\"")
-      //   //   ).to.eql(
-      //   //     [{value:'アイウエオ', remaining: ''}]
-      //   //   );
-      //   //   next();
-      //   // });
-      // });
     });
     // describe("fmap", (next) => {
     // it("toUpper", (next) => {
@@ -365,14 +307,6 @@ describe("Monadic Parser", () => {
     // });
     // });
     describe("派生したパーサー", (next) => {
-      // it("digit", (next) => {
-      //   expect(
-      //     Parser.digit()("123")
-      //   ).to.eql(
-      //     [{value:'1', remaining: '23'}]
-      //   );
-      //   next();
-      // });
       it("Parser#ident", (next) => {
         Maybe.match(Parser.ident()("abc def"), {
           nothing: (message) => {
