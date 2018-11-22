@@ -1,6 +1,6 @@
 {
   "name": "hyouka.js",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "description": "A simple toolkit library for building functional programming interpreter in node.js",
   "main": "index.js",
   "directories": {
