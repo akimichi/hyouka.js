@@ -5,7 +5,6 @@ const fs = require('fs'),
   expect = require('expect.js');
 
 const Monad = require('../lib/monad'),
-  ID = Monad.ID,
   Maybe = Monad.Maybe,
   State = Monad.State,
   Parser = Monad.Parser,
@@ -79,10 +78,11 @@ const RPNSyntax = {
   }
 }
 
-// repl:: Env -> Cont[IO]
+// repl:: Env -> Stack -> Cont[IO]
 const repl = (environment) => (initialStack) => {
 
   return Cont.callCC(exit => {
+    // loop:: Stack -> IO
     const loop = (stack) => {
       return IO.flatMap(inputAction("\nRPN> "))(inputString  => {
         switch(inputString) {
