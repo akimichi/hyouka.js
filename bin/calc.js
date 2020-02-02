@@ -9,8 +9,7 @@ const Monad = require('../lib/monad'),
   Cont = Monad.Cont,
   IO = Monad.IO;
 
-const Env = require("../lib/env.js"),
-  Interpreter = require("../lib/interpreter.js");
+const Env = require("../lib/env.js");
 
 const inputAction = (prompt) => {
   const readlineSync = require('readline-sync');
@@ -22,7 +21,8 @@ const repl = (environment) => {
   const Semantics = require('../lib/semantics.js'),
     Syntax = require('../lib/syntax.js'),
     Exp = require('../lib/exp.js');
-  const interpreter = Interpreter.mkInterpreter(Syntax.expression)(Semantics.evaluate);
+  const Interpreter = require("../lib/interpreter.js"),
+    Evaluator = Interpreter(Syntax.expression, Semantics.evaluator);
 
   return Cont.callCC(exit => {
     // loop:: Null -> IO
@@ -34,7 +34,8 @@ const repl = (environment) => {
           } else {
 
             // return Maybe.match(Cont.eval(Interpreter.eval(environment)(inputString)),{
-            return Maybe.match(Cont.eval(Interpreter.evaluate(interpreter)(environment)(inputString)),{
+            // return Maybe.match(Cont.eval(Interpreter.evaluate(interpreter)(environment)(inputString)),{
+            return Maybe.match(Cont.eval(Evaluator(environment)(inputString)),{
               nothing: (message) => {
                 return IO.flatMap(IO.putString(`\nnothing: ${message}`))(_ => {
                   return loop(); 
