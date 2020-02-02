@@ -19,6 +19,11 @@ const inputAction = (prompt) => {
 
 // repl:: Env -> Cont[IO]
 const repl = (environment) => {
+  const Semantics = require('../lib/semantics.js'),
+    Syntax = require('../lib/syntax.js'),
+    Exp = require('../lib/exp.js');
+  const interpreter = Interpreter.mkInterpreter(Syntax.expression)(Semantics.evaluate);
+
   return Cont.callCC(exit => {
     // loop:: Null -> IO
     const loop = () => {
@@ -27,7 +32,9 @@ const repl = (environment) => {
           if(inputString === 'exit') {
             return exit(IO.done(_));
           } else {
-            return Maybe.match(Cont.eval(Interpreter.eval(environment)(inputString)),{
+
+            // return Maybe.match(Cont.eval(Interpreter.eval(environment)(inputString)),{
+            return Maybe.match(Cont.eval(Interpreter.evaluate(interpreter)(environment)(inputString)),{
               nothing: (message) => {
                 return IO.flatMap(IO.putString(`\nnothing: ${message}`))(_ => {
                   return loop(); 
