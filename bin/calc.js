@@ -19,8 +19,7 @@ const inputAction = (prompt) => {
 // repl:: Env -> Cont[IO]
 const repl = (environment) => {
   const Semantics = require('../lib/semantics.js'),
-    Syntax = require('../lib/syntax.js'),
-    Exp = require('../lib/exp.js');
+    Syntax = require('../lib/syntax.js');
   const Interpreter = require("../lib/interpreter.js"),
     Evaluator = Interpreter(Syntax.expression, Semantics.evaluator);
 
@@ -36,6 +35,7 @@ const repl = (environment) => {
             // return Maybe.match(Cont.eval(Interpreter.eval(environment)(inputString)),{
             // return Maybe.match(Cont.eval(Interpreter.evaluate(interpreter)(environment)(inputString)),{
             return Maybe.match(Cont.eval(Evaluator(environment)(inputString)),{
+            // return Maybe.match(Evaluator(environment)(inputString),{
               nothing: (message) => {
                 return IO.flatMap(IO.putString(`\nnothing: ${message}`))(_ => {
                   return loop(); 
