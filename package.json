@@ -9,9 +9,10 @@
     "test": "test"
   },
   "scripts": {
+    "calc": "rlwrap node bin/calc.js",
+    "date": "rlwrap node bin/date.js",
     "test": "mocha -R spec --recursive test/",
-    "rpn": "bin/rpn.js",
-    "calc": "bin/calc.js"
+    "rpn": "bin/rpn.js"
   },
   "bin": {
     "hyouka": "./bin/hyouka.js"

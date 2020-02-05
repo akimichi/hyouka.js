@@ -61,7 +61,6 @@ const Syntax = {
           return Parser.flatMap(Parser.numeric())(month => {
             return Parser.flatMap(dash)(_ => {
               return Parser.flatMap(Parser.numeric())(day => {
-                console.log(`Parser date: ${year}-${month}-${day}`)
                 const date = moment(`${year}-${month}-${day}`, 'YYYY-MM-DD');
                 return Parser.unit(Exp.date(date));
               });
@@ -292,7 +291,6 @@ const Syntax = {
    *     | lambda(args)
    */
   app: (_) => {
-    const open = Parser.char("("), close = Parser.char(")"); 
     const operator = (_) => {
       return Syntax.variable();
       //
@@ -312,9 +310,11 @@ const Syntax = {
           ,Parser.unit([])
         );
       };
-      return many(Syntax.expression());
+      return many(Syntax.num());
+      // return many(Syntax.expression());
     };
     return Parser.flatMap(operator())(operator => {
+      const open = Parser.char("("), close = Parser.char(")"); 
       return Parser.flatMap(open)(_ => {
         return Parser.flatMap(operands())(args => {
           console.log(`app args: ${args}`)
@@ -322,7 +322,8 @@ const Syntax = {
             return Exp.match(operator, {
               variable: (name) => { // e.g.  (add 1 2) => (\x -> (\x -> add(arg1)))(arg2)
                 console.log(`app operator name: ${name}`)
-                const fun = exp.variable(name),
+                // const fun = Maybe.get(exp.variable(name)),
+                const fun = Maybe.get(Env.lookup(name)(env)),
                   x = exp.variable('x');
                 const application = array.foldr(args)(fun)(arg => {
                   return (accumulator) => {
@@ -402,6 +403,10 @@ const Semantics = {
   },
   evaluate: (anExp) => (env) => {
     return Exp.match(anExp,{
+      // 数値の評価
+      num: (value) => {
+        return Maybe.just(value);
+      },
       // 変数の評価
       variable: (name) => {
         return Env.lookup(name)(env);
