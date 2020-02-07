@@ -720,6 +720,40 @@ describe("Monadic Parser", () => {
         });
       });
     });
+    describe("Parser#sepByは、0個の要素でもマッチする", () => {
+      it("sepBy(abc,def,ghi)", (next) => {
+        const sep = Parser.char(","); 
+        const parser = Parser.sepBy(Parser.word())(sep);
+        Maybe.match(Parser.parse(parser)("abc,def,ghi"), {
+          nothing: (message) => {
+            console.log(message)
+            expect().to.fail()
+            next();
+          },
+          just: (result) => {
+            expect(result.value).to.eql(["abc","def","ghi"])
+            expect(result.remaining).to.eql('')
+            next();
+          }
+        });
+      });
+      it("sepBy()", (next) => {
+        const sep = Parser.char(","); 
+        const parser = Parser.sepBy1(Parser.word())(sep);
+        Maybe.match(Parser.parse(parser)(""), {
+          nothing: (message) => {
+            console.log(message)
+            expect().to.fail()
+            next();
+          },
+          just: (result) => {
+            expect(result.value).to.eql([])
+            expect(result.remaining).to.eql('')
+            next();
+          }
+        });
+      });
+    });
     it("bracket", (next) => {
       const open = Parser.char("("),
         close = Parser.char(")"); 
