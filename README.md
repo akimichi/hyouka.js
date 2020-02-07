@@ -71,21 +71,18 @@ calc> 1 + 2
 1 + 2
 3
 
-calc> {and true false}
-{and true false}
+calc> and(true, false)
 false
 
-calc> {pow 2 10}
-{pow 2 10}
+calc> pow(2, 10)
 1024
 
-calc> {(\x x+1) 2}
-{(\x x+1) 2}
+calc> (\x x+1)(2)
 3
 
-calc> {(\x (\y x+y)) 1 2}
-{(\x (\y x+y)) 1 2}
+calc> (\x (\y x+y))(1, 2)
 3
+
 calc> exit
 exit
 ~~~
@@ -99,16 +96,22 @@ $ npm run rpn
 
 RPN> 1
 1
+
 RPN> 2
 2
+
 RPN> +
 3
+
 RPN> stack
 [3,2,1]
+
 RPN> 4
 4
+
 RPN> *
 12
+
 RPN> ^C
 ~~~
 
