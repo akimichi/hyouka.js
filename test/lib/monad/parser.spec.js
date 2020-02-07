@@ -683,24 +683,41 @@ describe("Monadic Parser", () => {
         });
       });
     });
-    it("sepby1は、最低1個の要素とマッチする必要がある", (next) => {
-      //  parseTest (sepBy word (char ',')) "abc,def,ghi" 
-      //              where word = many1 letter
-      // ["abc","def","ghi"]
-      const sep = Parser.char(","); 
-      const parser = Parser.sepBy1(Parser.word())(sep);
-      Maybe.match(Parser.parse(parser)("abc,def,ghi"), {
-        nothing: (message) => {
-          console.log(message)
-          expect().to.fail()
-          next();
-        },
-        just: (result) => {
-          console.log(result)
-          expect(result.value).to.eql(["abc","def","ghi"])
-          // expect(result.remaining).to.eql('abc')
-          next();
-        }
+    describe("Parser#sepBy1は、最低1個の要素とマッチする必要がある", () => {
+      it("sepBy1(abc,def,ghi)", (next) => {
+        //  parseTest (sepBy word (char ',')) "abc,def,ghi" 
+        //              where word = many1 letter
+        // ["abc","def","ghi"]
+        const sep = Parser.char(","); 
+        const parser = Parser.sepBy1(Parser.word())(sep);
+        Maybe.match(Parser.parse(parser)("abc,def,ghi"), {
+          nothing: (message) => {
+            console.log(message)
+            expect().to.fail()
+            next();
+          },
+          just: (result) => {
+            expect(result.value).to.eql(["abc","def","ghi"])
+            expect(result.remaining).to.eql('')
+            next();
+          }
+        });
+      });
+      it("sepBy1(abc)", (next) => {
+        const sep = Parser.char(","); 
+        const parser = Parser.sepBy1(Parser.word())(sep);
+        Maybe.match(Parser.parse(parser)("abc"), {
+          nothing: (message) => {
+            console.log(message)
+            expect().to.fail()
+            next();
+          },
+          just: (result) => {
+            expect(result.value).to.eql(["abc"])
+            expect(result.remaining).to.eql('')
+            next();
+          }
+        });
       });
     });
     it("bracket", (next) => {
