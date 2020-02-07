@@ -315,17 +315,19 @@ const Syntax = {
       );
     };
     const operands = (_) => {
-      const many = (parser) => {
-        return Parser.alt(
-          Parser.flatMap(parser)(x => {
-            return Parser.flatMap(many(parser))(xs => {
-              return Parser.unit(array.cons(x,xs));
-            });
-          })
-          ,Parser.unit([])
-        );
-      };
-      return many(Syntax.expression());
+      const separator = Parser.char(","); 
+      return Parser.sepBy(Syntax.expression())(separator);
+      // const many = (parser) => {
+      //   return Parser.alt(
+      //     Parser.flatMap(parser)(x => {
+      //       return Parser.flatMap(many(parser))(xs => {
+      //         return Parser.unit(array.cons(x,xs));
+      //       });
+      //     })
+      //     ,Parser.unit([])
+      //   );
+      // };
+      // return many(Syntax.expression());
     };
     return Parser.flatMap(operator())(operator => {
       return Parser.flatMap(open)(_ => {

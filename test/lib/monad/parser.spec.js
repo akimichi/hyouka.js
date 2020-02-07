@@ -171,23 +171,6 @@ describe("Monadic Parser", () => {
             next();
           }
         });
-        // expect(
-        //   Array.length(Parser.parse(Parser.word())("Yes!"))
-        // ).to.eql(
-        //   1 
-        //   // 4 
-        // );
-        // expect(
-        //   Parser.parse(Parser.word())("Yes!")
-        // ).to.eql(
-        //   [{value:"Yes", remaining: '!'}]
-        // );
-        // expect(
-        //   Parser.parse(Parser.word())("ab,c")
-        // ).to.eql(
-        //   [{value:"ab", remaining: ',c'}]
-        // );
-        // next();
       });
     });
     describe("Parser#regex", () => {
@@ -407,7 +390,6 @@ describe("Monadic Parser", () => {
       it("many digit", (next) => {
         Maybe.match(Parser.many(Parser.digit())("123def"), {
           nothing: (message) => {
-            console.log(message)
             expect().to.fail()
           },
           just: (result) => {
@@ -417,7 +399,6 @@ describe("Monadic Parser", () => {
         });
         Maybe.match(Parser.many(Parser.digit())("abc"), {
           nothing: (message) => {
-            console.log(message)
             expect().to.fail()
             next();
           },
@@ -700,30 +681,28 @@ describe("Monadic Parser", () => {
             next();
           }
         });
-        // expect(
-        //   Parser.parse(
-        //     Parser.spaces()
-        //   )("  abc")
-        // ).to.eql(
-        //   [{value:undefined, remaining: 'abc'}]
-        // );
-        // next();
       });
     });
-    // it("sepby1", (next) => {
-    //   //  parseTest (sepBy word (char ',')) "abc,def,ghi" 
-    //   //              where word = many1 letter
-    //   // ["abc","def","ghi"]
-    //   const sep = Parser.char(","); 
-    //   expect(
-    //     Parser.parse(
-    //       Parser.sepBy1(Parser.word())(sep)
-    //     )("abc,def,ghi")
-    //   ).to.eql(
-    //     [{value:["abc","def","ghi"], remaining: ''}]
-    //   );
-    //   next();
-    // });
+    it("sepby1は、最低1個の要素とマッチする必要がある", (next) => {
+      //  parseTest (sepBy word (char ',')) "abc,def,ghi" 
+      //              where word = many1 letter
+      // ["abc","def","ghi"]
+      const sep = Parser.char(","); 
+      const parser = Parser.sepBy1(Parser.word())(sep);
+      Maybe.match(Parser.parse(parser)("abc,def,ghi"), {
+        nothing: (message) => {
+          console.log(message)
+          expect().to.fail()
+          next();
+        },
+        just: (result) => {
+          console.log(result)
+          expect(result.value).to.eql(["abc","def","ghi"])
+          // expect(result.remaining).to.eql('abc')
+          next();
+        }
+      });
+    });
     it("bracket", (next) => {
       const open = Parser.char("("),
         close = Parser.char(")"); 
