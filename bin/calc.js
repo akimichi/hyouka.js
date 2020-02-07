@@ -106,10 +106,10 @@ const Syntax = {
   },
   arithmetic: {
     expr: () => {
-      return Syntax.arithmetic.chainl1(Syntax.arithmetic.term, Syntax.arithmetic.addOp);
+      return Parser.chainl1(Syntax.arithmetic.term, Syntax.arithmetic.addOp);
     },
     term: () => {
-      return Syntax.arithmetic.chainr1(Syntax.arithmetic.factor, Syntax.arithmetic.multiplyOp);
+      return Parser.chainr1(Syntax.arithmetic.factor, Syntax.arithmetic.multiplyOp);
     },
     factor: () => {
       return Parser.alt(
@@ -125,55 +125,55 @@ const Syntax = {
       //   Parser.alt(Syntax.variable(),
       //     Parser.bracket(Syntax.arithmetic.open, Syntax.arithmetic.expr, Syntax.arithmetic.close)));
     },
-    chainl1: (parser, op) => {
-      expect(parser).to.a('function');
-      expect(op).to.a('function');
-      const rest = (x) => {
-        return Parser.alt(
-          Parser.flatMap(op())(exp => {
-            return Parser.flatMap(parser())(y => {
-              return rest(exp(y)(x));
-            });
-          })
-          ,Parser.unit(x)
-        );
-      };
-      return Parser.flatMap(parser())(rest);
-    },
-    // chainl :: Parser a -> Parser (a -> a -> a) -> a -> Parser a
-    // chainl p op v = (p ‘chainl1‘ op) ++ [v]
-    chainl: (parser, op, alternative) => {
-      return Parser.alt(
-        Syntax.arithmetic.chainl1(parser, op)
-        ,Syntax.arithmetic.unit(alternative())
-      );
-    },
-    // ## Parser#chainr1
-    //chainr1 :: Parser a -> Parser (a -> a -> a) -> Parser a
-    // p ‘chainr1‘ op =
-    //       p ‘bind‘ \x ->
-    //           [f x y | f <- op, y <- p ‘chainr1‘ op] ++ [x]
-    chainr1: (parser, op) => {
-      expect(parser).to.a('function'); expect(op).to.a('function');
-      return Parser.flatMap(parser())(x => {
-        return Parser.alt(
-          Parser.flatMap(op())(fun => {
-            return Parser.flatMap(Parser.chainr1(parser,op))(y => {
-              return Parser.unit(fun(x)(y));
-            })
-          })
-          ,Parser.unit(x)
-        );
-      });
-    },
-    // chainr :: Parser a -> Parser (a -> a -> a) -> a -> Parser a
-    // chainr p op v = (p ‘chainr1‘ op) ++ [v]  
-    chainr: (parser, op, v) => {
-      return Parser.append(
-        Syntax.arithmetic.chainr1(parser, op)
-        ,Parser.unit(v())
-      );
-    },
+    //chainl1: (parser, op) => {
+    //  expect(parser).to.a('function');
+    //  expect(op).to.a('function');
+    //  const rest = (x) => {
+    //    return Parser.alt(
+    //      Parser.flatMap(op())(exp => {
+    //        return Parser.flatMap(parser())(y => {
+    //          return rest(exp(y)(x));
+    //        });
+    //      })
+    //      ,Parser.unit(x)
+    //    );
+    //  };
+    //  return Parser.flatMap(parser())(rest);
+    //},
+    //// chainl :: Parser a -> Parser (a -> a -> a) -> a -> Parser a
+    //// chainl p op v = (p ‘chainl1‘ op) ++ [v]
+    //chainl: (parser, op, alternative) => {
+    //  return Parser.alt(
+    //    Syntax.arithmetic.chainl1(parser, op)
+    //    ,Syntax.arithmetic.unit(alternative())
+    //  );
+    //},
+    //// ## Parser#chainr1
+    ////chainr1 :: Parser a -> Parser (a -> a -> a) -> Parser a
+    //// p ‘chainr1‘ op =
+    ////       p ‘bind‘ \x ->
+    ////           [f x y | f <- op, y <- p ‘chainr1‘ op] ++ [x]
+    //chainr1: (parser, op) => {
+    //  expect(parser).to.a('function'); expect(op).to.a('function');
+    //  return Parser.flatMap(parser())(x => {
+    //    return Parser.alt(
+    //      Parser.flatMap(op())(fun => {
+    //        return Parser.flatMap(Parser.chainr1(parser,op))(y => {
+    //          return Parser.unit(fun(x)(y));
+    //        })
+    //      })
+    //      ,Parser.unit(x)
+    //    );
+    //  });
+    //},
+    //// chainr :: Parser a -> Parser (a -> a -> a) -> a -> Parser a
+    //// chainr p op v = (p ‘chainr1‘ op) ++ [v]  
+    //chainr: (parser, op, v) => {
+    //  return Parser.append(
+    //    Syntax.arithmetic.chainr1(parser, op)
+    //    ,Parser.unit(v())
+    //  );
+    //},
     open: Parser.char("("),
     close: Parser.char(")"),
     addOp: () => {
