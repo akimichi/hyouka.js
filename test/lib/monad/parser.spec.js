@@ -747,7 +747,7 @@ describe("Monadic Parser", () => {
             next();
           },
           just: (result) => {
-            expect(result.value).to.eql([])
+            expect(result.value).to.eql([""])
             expect(result.remaining).to.eql('')
             next();
           }

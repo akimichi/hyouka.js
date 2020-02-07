@@ -105,6 +105,8 @@ const Syntax = {
     });
   },
   arithmetic: {
+    open: Parser.char("("),
+    close: Parser.char(")"),
     expr: () => {
       return Parser.chainl1(Syntax.arithmetic.term, Syntax.arithmetic.addOp);
     },
@@ -174,8 +176,6 @@ const Syntax = {
     //    ,Parser.unit(v())
     //  );
     //},
-    open: Parser.char("("),
-    close: Parser.char(")"),
     addOp: () => {
       const plus = Parser.token(Parser.char("+")),
         minus = Parser.token(Parser.char("-"));
