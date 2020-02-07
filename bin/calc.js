@@ -4,6 +4,10 @@
 const fs = require('fs'),
   expect = require('expect.js');
 
+const kansuu = require('kansuu.js'),
+  pair = kansuu.pair,
+  array = kansuu.array;
+
 const Monad = require('../lib/monad'),
   Maybe = Monad.Maybe,
   Reader = Monad.Reader,
@@ -298,7 +302,7 @@ const Syntax = {
    *     | (app args)
    */
   app: (_) => {
-    const open = Parser.char("{"), close = Parser.char("}"); 
+    const open = Parser.char("("), close = Parser.char(")"); 
     const operator = (_) => {
       return Parser.alt( 
         Syntax.variable(), // 変数
@@ -323,8 +327,8 @@ const Syntax = {
       };
       return many(Syntax.expression());
     };
-    return Parser.flatMap(open)(_ => {
-      return Parser.flatMap(Syntax.expression())(operator => {
+    return Parser.flatMap(operator())(operator => {
+      return Parser.flatMap(open)(_ => {
         return Parser.flatMap(operands())(args => {
           return Parser.flatMap(close)(_ => {
             return Exp.match(operator, {
@@ -400,7 +404,13 @@ const Semantics = {
       object: (value) => { return Maybe.just(value); },
       // 変数の評価
       variable: (name) => {
-        return Env.lookup(name)(env);
+        const maybeValue = Env.lookup(name)(env); // value or undefined
+        if(maybeValue === undefined) {
+          return Maybe.nothing(`${name}は未定義です`)
+        } else {
+          return Maybe.just(maybeValue)
+        }
+        // return Env.lookup(name)(env); // VALUE
       },
       /* 関数定義（λ式）の評価  */
       // lambda:: (Var, Exp) -> Reader[Maybe[FUN[VALUE -> Reader[Maybe[VALUE]]]]]
