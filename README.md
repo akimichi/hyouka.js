@@ -64,6 +64,8 @@ IO.run(Cont.eval(repl(Env.prelude())))
 
 ### simple calculator
 
+c.f. https://github.com/akimichi/hyouka.js/blob/master/bin/calc.js
+
 ~~~
 $ npm run calc
 
@@ -90,6 +92,8 @@ exit
 ### RPN calculator
 
 An example of Reverse Polish Notation calculator.
+
+c.f. https://github.com/akimichi/hyouka.js/blob/master/bin/rpn.js
 
 ~~~
 $ npm run rpn
