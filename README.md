@@ -11,19 +11,23 @@ $ npm install hyouka.js
 ## Usage
 
 ~~~js
-#!/usr/bin/env node
 'use strict';
 
 const Hyouka = require('hyouka.js');
   Env = Hyouka.Env,
+  Syntax = Hyouka.Syntax,
+  Semantics = Hyouka.Semantics,
   Interpreter = Hyouka.Interpreter;
+
+// Building an evaluator from syntax and sematics.
+const Evaluator = Interpreter(Syntax.expression, Semantics.evaluator);
 
 const Monad = Hyouka.Monad,
   Maybe = Monad.Maybe, // Maybe Monad
   Cont = Monad.Cont,   // Continuation Monad
   IO = Monad.IO;       // IO Monad
 
-const repl = (environment) => {
+const Repl = (environment) => {
   const inputAction = (prompt) => {
     const readlineSync = require('readline-sync');
     return IO.unit(readlineSync.question(prompt));
@@ -36,7 +40,7 @@ const repl = (environment) => {
           if(inputString === 'exit') {
             return exit(IO.done(_));
           } else {
-            return Maybe.match(Cont.eval(Interpreter.eval(environment)(inputString)),{
+            return Maybe.match(Cont.eval(Evaluator(environment)(inputString)),{
               nothing: (message) => {
                 return IO.flatMap(IO.putString(`\nnothing: ${message}`))(_ => {
                   return loop(); 
@@ -56,7 +60,7 @@ const repl = (environment) => {
   });
 };
 
-IO.run(Cont.eval(repl(Env.prelude())))
+IO.run(Cont.eval(Repl(Env.prelude())))
 ~~~
 
 

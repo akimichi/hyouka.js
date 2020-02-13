@@ -15,7 +15,6 @@ const Monad = require('../lib/monad'),
   Parser = Monad.Parser,
   IO = Monad.IO;
 
-const Env = require("../lib/env.js");
 
 const moment = require('moment');
 
@@ -24,8 +23,20 @@ const inputAction = (prompt) => {
   return IO.unit(readlineSync.question(prompt));
 };
 
+/* 
+ * 環境 Environment
+ */
+const Env = require("../lib/env.js");
+const dateEnv = [
+  pair.cons('today', (_ => {
+    return Maybe.just(moment()); 
+  }))
+];
+
+const environment = Env.prelude(dateEnv);
+
 /*
- * 式
+ * 式 expression
  */
 const Exp = require('../lib/exp.js');
 Exp.duration = (value) => {
@@ -35,7 +46,7 @@ Exp.duration = (value) => {
 };
 
 /*
- * 文法
+ * Grammar 文法
  */
 const Syntax = {
   expression: (_) => {
@@ -219,112 +230,6 @@ const Syntax = {
       return Parser.alt(day(), Parser.alt(week(),month()));
     }
   },
-  arithmetic: {
-    // open: Parser.char("("),
-    // close: Parser.char(")"),
-    // expr: () => {
-    //   return Parser.chainl1(Syntax.arithmetic.term, Syntax.arithmetic.addOp);
-    // },
-    // term: () => {
-    //   return Parser.chainr1(Syntax.arithmetic.factor, Syntax.arithmetic.multiplyOp);
-    // },
-    // factor: () => {
-    //   return Parser.alt(
-    //     Syntax.value(), 
-    //     Parser.alt(
-    //       Syntax.app(),
-    //       Parser.alt(
-    //         Syntax.lambda(),
-    //         Parser.alt(Syntax.variable(),
-    //           Parser.bracket(Syntax.arithmetic.open, Syntax.arithmetic.expr, Syntax.arithmetic.close)))));
-    // },
-    // addOp: () => {
-    //   const plus = Parser.token(Parser.char("+")),
-    //     minus = Parser.token(Parser.char("-"));
-    //   return Parser.flatMap(Parser.alt(plus, minus))(symbol => {
-    //     switch(symbol) {
-    //       case "+":
-    //         const add = (expL) => (expR) => {
-    //           const x = Exp.variable('x'), 
-    //             y = Exp.variable('y'),
-    //             application = Exp.app(
-    //               Exp.app(
-    //                 Exp.lambda(x, Exp.lambda(y, 
-    //                   Exp.add(x, y)))
-    //                 , expR) , expL);
-    //           return application;
-    //         };
-    //         return Parser.unit(add);
-    //       case "-":
-    //         const subtract = (expL) => (expR) => {
-    //           const x = Exp.variable('x'), 
-    //             y = Exp.variable('y'),
-    //             application = Exp.app(
-    //               Exp.app(
-    //                 Exp.lambda(x, Exp.lambda(y, 
-    //                   Exp.subtract(x, y)))
-    //                 , expR) , expL);
-    //           return application;
-    //         };
-    //         return Parser.unit(subtract);
-    //       default: 
-    //         return Parser.zero;
-    //     }
-    //   });
-    // },
-    // multiplyOp: () => {
-    //   const multiply = Parser.token(Parser.char("*")),
-    //     divide = Parser.token(Parser.char("/")),
-    //     modulo = Parser.token(Parser.char("%")),
-    //     exponential = Parser.token(Parser.char("^"));
-    //   const x = Exp.variable('x'), 
-    //     y = Exp.variable('y');
-    //   return Parser.flatMap(Parser.alt(multiply,
-    //       Parser.alt(divide,
-    //         Parser.alt(modulo, exponential))))(symbol => {
-    //     switch(symbol) {
-    //       case "*":
-    //         const multiply = (expL) => (expR) => {
-    //           return Exp.app(
-    //             Exp.app(
-    //               Exp.lambda(x, Exp.lambda(y, 
-    //                 Exp.multiply(x, y)))
-    //               , expR) , expL);
-    //         };
-    //         return Parser.unit(multiply);
-    //       case "/":
-    //         const divide = (expL) => (expR) => {
-    //           return Exp.app(
-    //             Exp.app(
-    //               Exp.lambda(x, Exp.lambda(y, 
-    //                 Exp.divide(x, y)))
-    //               , expR) , expL);
-    //         };
-    //         return Parser.unit(divide);
-    //       case "%":
-    //         const modulo = (expL) => (expR) => {
-    //           return Exp.app(
-    //             Exp.app(
-    //               Exp.lambda(x, Exp.lambda(y, 
-    //                 Exp.modulo(x, y)))
-    //               , expR) , expL);
-    //         };
-    //         return Parser.unit(modulo);
-    //       case "^":
-    //         const exponential = (expL) => (expR) => {
-    //           return Exp.app(
-    //             Exp.app(
-    //               Exp.lambda(x, Exp.lambda(y, 
-    //                 Exp.exponential(x, y)))
-    //               , expR) , expL);
-    //         };
-    //         return Parser.unit(exponential);
-    //       default: 
-    //         return Parser.zero;
-    //     }
-    //   });
-    // },
-  },
   variable: (_) => {
     return Parser.token(Parser.flatMap(Parser.identifier(["^"]))(name => {
       return Parser.unit(Exp.variable(name));
@@ -426,11 +331,6 @@ const Syntax = {
  */
 
 const Semantics = require('../lib/semantics.js');
-// 日付の評価
-// Semantics.date = (value) => { return Maybe.just(value); };
-// 期間の評価
-// Semantics.duration = (value) => { return Maybe.just(value); };
-//
 // subtractの評価
 Semantics.subtract = (expL, expR) => (env) => {
   return Maybe.flatMap(Cont.eval(Semantics.evaluate(expL)(env)))(valueL => {
@@ -506,7 +406,6 @@ const Repl = (environment) => {
             return exit(IO.done(_));
           } else {
             return Maybe.match(Cont.eval(Evaluator(environment)(inputString)),{
-            // return Maybe.match(Evaluator(environment)(inputString),{
               nothing: (message) => {
                 return IO.flatMap(IO.putString(`\nnothing: ${message}`))(_ => {
                   return loop(); 
@@ -526,6 +425,6 @@ const Repl = (environment) => {
   });
 };
 
-IO.run(Cont.eval(Repl(Env.prelude())))
+IO.run(Cont.eval(Repl(environment)))
 
 

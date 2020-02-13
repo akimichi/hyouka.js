@@ -16,8 +16,8 @@ const Monad = require('../lib/monad'),
   IO = Monad.IO,
   ID = Monad.ID;
 
-const Env = require("../lib/env.js");
-const Exp = require('../lib/exp.js');
+const Env = require("../lib/env.js"),
+  Exp = require('../lib/exp.js');
 
 const inputAction = (prompt) => {
   const readlineSync = require('readline-sync');
@@ -188,10 +188,6 @@ const Syntax = {
     });
   },
   /*
-   * app:: {expression expressions}
-   * app:: (variable args)
-   *     | (lambda args)
-   *     | (app args)
    */
   app: (_) => {
     const open = Parser.char("("), close = Parser.char(")"); 
