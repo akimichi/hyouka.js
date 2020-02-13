@@ -28,17 +28,10 @@ const Syntax = {
   // expression:: () -> Parser
   expression: (_) => {
     return Syntax.arithmetic.expr();
-    // return Parser.alt(Syntax.app(), 
-    //   Parser.alt(Syntax.arithmetic.expr(),
-    //     Parser.alt(Syntax.lambda(),
-    //       Parser.alt(Syntax.value(), 
-    //         Syntax.variable()))));
   },
   value: (_) => {
     return Parser.alt(Syntax.bool(), 
-      Parser.alt(Syntax.num(),
-        Parser.alt(Syntax.string(),
-          Syntax.date())));
+      Syntax.num());
   },
   bool: (_) => {
     return Parser.alt(
@@ -54,54 +47,6 @@ const Syntax = {
   num: (_) => {
     return Parser.flatMap(Parser.numeric())(number => {
       return Parser.unit(Exp.num(number));
-    });
-  },
-  date: (_) => {
-    const moment = require('moment');
-    const at = Parser.char("@"),
-      dash = Parser.char("-");
-    return Parser.flatMap(at)(_ => {
-      return Parser.flatMap(Parser.numeric())(year => {
-        return Parser.flatMap(dash)(_ => {
-          return Parser.flatMap(Parser.numeric())(month => {
-            return Parser.flatMap(dash)(_ => {
-              return Parser.flatMap(Parser.numeric())(day => {
-                const date = moment(`${year}-${month}-${day}`);
-                return Parser.unit(Exp.date(date));
-              });
-            });
-          });
-        });
-      });
-    });
-  },
-  string: (_) => { 
-    const quote = Parser.char('"');
-    const many = (parser) => {
-      return Parser.alt(
-        Parser.flatMap(parser)(x => {
-          return Parser.flatMap(many(parser))(xs => {
-            return Parser.unit(string.cons(x,xs));
-          });
-        })
-        ,Parser.unit("")
-      );
-    };
-    const anyString = (_) => {
-      const anyChar = (_) => {
-        const isChar = (x) => {
-          if(x.match(/[^ \t\n\"]/)) {
-            return true;
-          } else {
-            return false;
-          } 
-        };
-        return Parser.sat(isChar);
-      };
-      return many(anyChar());
-    };
-    return Parser.flatMap(Parser.bracket(quote, anyString, quote))(content => {
-      return Parser.unit(Exp.string(content));
     });
   },
   arithmetic: {
@@ -136,7 +81,7 @@ const Syntax = {
                   Exp.app(
                     Exp.lambda(x, Exp.lambda(y, 
                       Exp.add(x, y)))
-                    , expR) , expL);
+                    , expL) , expR);
               return application;
             };
             return Parser.unit(add);
@@ -148,7 +93,7 @@ const Syntax = {
                   Exp.app(
                     Exp.lambda(x, Exp.lambda(y, 
                       Exp.subtract(x, y)))
-                    , expR) , expL);
+                    , expL) , expR);
               return application;
             };
             return Parser.unit(subtract);

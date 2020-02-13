@@ -430,65 +430,67 @@ const Semantics = require('../lib/semantics.js');
 // Semantics.date = (value) => { return Maybe.just(value); };
 // 期間の評価
 // Semantics.duration = (value) => { return Maybe.just(value); };
-// appの評価
-// delete Semantics.app;
-// Semantics.app = (operator, operands) => {
-//   console.log("Semantics.app")
-//   const open = Parser.char("("), close = Parser.char(")"); 
-//   // const operator = (_) => {
-//   //   return Parser.alt( 
-//   //     Syntax.variable(), // 変数
-//   //     Parser.alt( 
-//   //       Syntax.lambda(), // λ式
-//   //       Parser.flatMap(Parser.bracket(open, Syntax.app, close))(app => {
-//   //         return Parser.unit(app);
-//   //       })
-//   //     )
-//   //   );
-//   // };
-//   // const operands = (_) => {
-//   //   const separator = Parser.char(","); 
-//   //   return Parser.sepBy(Syntax.expression())(separator);
-//   // };
-//   return Parser.flatMap(operator())(operator => {
-//     return Parser.flatMap(open)(_ => {
-//       return Parser.flatMap(operands())(args => {
-//         return Parser.flatMap(close)(_ => {
-//           return Exp.match(operator, {
-//             variable: (name) => { // e.g.  (add 1 2) => (\x -> (\x -> add(arg1)))(arg2)
-//               const fun = Exp.variable(name);
-//               // 引数なしの関数適用、例えば today() の場合
-//               if(array.isEmpty(args)) {
-//                 const application = Exp.app(fun, Exp.dummy())
-//                 return Parser.unit(application);
-//               } else {
-//                 const application = array.foldr(args)(fun)(arg => {
-//                   return (accumulator) => {
-//                     return Exp.app(accumulator, arg)
-//                   };
-//                 });
-//                 return Parser.unit(application);
-//               }
-//             },
-//             lambda: (variable, body) => {
-//               const x = Exp.variable('x');
-//               const application = array.foldr(args)(Exp.lambda(x, body))(arg => {
-//                 return (accumulator) => {
-//                   return Exp.app(accumulator, arg)
-//                 };
-//               });
-//               return Parser.unit(application);
-//             },
-//             app: (operator, operands) => {
-//               return Parser.unit(Epx.app(operator, operands));
-//             }
-//           });
-//         })
-//       })
-//     })
-//   });
-// }; // end of app
-
+//
+// subtractの評価
+Semantics.subtract = (expL, expR) => (env) => {
+  return Maybe.flatMap(Cont.eval(Semantics.evaluate(expL)(env)))(valueL => {
+    return Maybe.flatMap(Cont.eval(Semantics.evaluate(expR)(env)))(valueR => {
+      if(moment.isMoment(valueL) === true) {
+        // 日付 - 日付 = 期間
+        if(moment.isMoment(valueR) === true) {
+          const clone = valueL.clone();
+          const difference = Math.abs(clone.diff(valueR,'days')) + 1;
+          return Maybe.just(`${difference}日`);
+        } else if(moment.isDuration(valueR) === true) {
+          // 日付 - 期間 = 日付
+          const clone = valueL.clone();
+          return Maybe.just(clone.subtract(valueR));
+        }
+      } else if(moment.isDuration(valueL) === true) {
+        // 期間 - 期間 = 期間
+        if(moment.isDuration(valueR) === true) {
+          const clone = valueL.clone();
+          return Maybe.just(clone.subtract(valueR));
+        } else if(moment.isMoment(valueR) === true) {
+          // 期間 - 日付 = エラー
+          return Maybe.nothing("期間から日付は引けません");
+        }
+      } else {
+        return Maybe.nothing(`${valueL} のマッチエラー`);
+      }
+    });
+  });
+};
+// addの評価
+Semantics.add = (expL, expR) => (env) => {
+  //  足し算の評価 
+  return Maybe.flatMap(Cont.eval(Semantics.evaluate(expL)(env)))(valueL => {
+    return Maybe.flatMap(Cont.eval(Semantics.evaluate(expR)(env)))(valueR => {
+      if(moment.isMoment(valueL) === true) {
+        // 日付 + 期間 = 日付
+        if(moment.isDuration(valueR) === true) {
+          const clone = valueL.clone();
+          return Maybe.just(clone.add(valueR));
+        } else if(moment.isMoment(valueR) === true) {
+          // 日付 + 日付 = エラー 
+          return Maybe.nothing("日付と日付は足せません");
+        }
+      } else if(moment.isDuration(valueL) === true) {
+        // 期間 + 期間 = 期間
+        if(moment.isDuration(valueR) === true) {
+          const clone = valueL.clone();
+          return Maybe.just(clone.add(valueR));
+        } else if(moment.isMoment(valueR) === true) {
+          // 期間 + 日付 = 日付 
+          const clone = valueR.clone();
+          return Maybe.just(clone.add(valueL));
+        }
+      } else {
+        return Maybe.nothing(`${valueL} のマッチエラー`);
+      }
+    });
+  });
+};
 
 // repl:: Env -> Cont[IO]
 const Repl = (environment) => {
