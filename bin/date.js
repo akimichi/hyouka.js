@@ -23,6 +23,49 @@ const inputAction = (prompt) => {
   return IO.unit(readlineSync.question(prompt));
 };
 
+const getWarekiYmd = (date) => {
+  //年号毎の開始日付
+  const m = new Date(1868,8,8), //1868年9月8日～
+    t = new Date(1912,6,30),//1912年7月30日～
+    s = new Date(1926,11,25), //1926年12月25日～
+    h = new Date(1989,0,8), //1989年1月8日～
+    a = new Date(2019,4,1);//2019年5月1日～
+  var gen="";
+  var nen=0;
+
+  var y = date.getFullYear();
+  // var mo = ("00" + (date.getMonth()+1)).slice(-2); //※
+  // var d = ("00" + date.getDate()).slice(-2);       //※
+  //※ゼロ埋めしたくない場合は以下に置き換えてください。
+  var mo = date.getMonth()+1;
+  var d = date.getDate();
+
+  //元号判定
+  if(m<=date && date<t){
+    gen = "明治";
+    nen = (y - m.getFullYear())+1;
+  }else if(t<=date && date<s){
+    gen = "大正";
+    nen = (y - t.getFullYear())+1;
+  }else if(s<=date && date<h){
+    gen = "昭和";
+    nen = (y - s.getFullYear())+1;
+  }else if(h<=date && date<a){
+    gen = "平成";
+    nen = (y - h.getFullYear())+1;
+  }else if(a<=date){
+    gen = "令和";
+    nen = (y - a.getFullYear())+1;
+  }else{
+    gen = "";
+  }
+
+  //1年の場合は"元"に置き換え
+  if(nen == 1){ nen = "元"; }
+  return gen + nen + "年" + mo + "月" + d + "日";
+};
+
+
 /* 
  * 環境 Environment
  */
@@ -30,7 +73,28 @@ const Env = require("../lib/env.js");
 const dateEnv = [
   pair.cons('today', (_ => {
     return Maybe.just(moment()); 
-  }))
+  })),
+  pair.cons('print', (message => {
+    return Maybe.just(message); 
+  })),
+  pair.cons('wareki', (date => {
+    if(moment.isMoment(date) === true) {
+      const wareki = getWarekiYmd(date.toDate());
+      return Maybe.just(wareki);
+      // return Maybe.just(date.toDate().toLocaleDateString('ja-JP-u-ca-japanese', {
+      //   era    : 'long'   ,  // 時代 : 'narrow' にすると '平成' は 'H' になる
+      //   year   : 'numeric',  // 年 : 'ja-JP-u-ca-japanese' の場合は和暦
+      //   month  : 'long'   ,  // 月
+      //   day    : 'numeric',  // 日
+      //   weekday: 'short'  ,  // 曜日 : 'long' で '金曜日'・'short' で '(金)' になる
+      //   hour12 : true     ,  // 時間の12時間表記 : false にすると '16' (時) ではなく '午後4' (時) になる
+      //   hour   : 'numeric',  // 時
+      //   minute : 'numeric',  // 分
+      //   second : 'numeric'   // 秒
+      // }));
+    } else {
+      return Maybe.nothing(`${date} のマッチエラー`);
+    }}))
 ];
 
 const environment = Env.prelude(dateEnv);
