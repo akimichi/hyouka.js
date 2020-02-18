@@ -9,6 +9,7 @@ const kansuu = require('kansuu.js'),
 
 const Monad = require('../lib/monad'),
   Maybe = Monad.Maybe,
+  State = Monad.State,
   Reader = Monad.Reader,
   Parser = Monad.Parser,
   Cont = Monad.Cont,
@@ -18,12 +19,28 @@ const Monad = require('../lib/monad'),
 const Env = require("../lib/env.js"),
   Exp = require('../lib/exp.js');
 
+const Environment = {
+  empty: (_) => {
+    return Env.empty();
+  },
+  extend: (key, value) => {
+    return State.state(env => {
+      return Env.extend(key, value)(env);
+    });
+  },
+  lookup: (key) => {
+    State.state(env => {
+      return Env.lookup(key)(env);
+    })
+  }
+};
+
 const definitions = [
   ["+", LISP.EXP.lambda(n, LISP.EXP.lambda(m, LISP.EXP.add(n, m)))],
   ["-", LISP.EXP.lambda(m, LISP.EXP.lambda(n, LISP.EXP.subtract(n, m)))],
   ["abs", LISP.EXP.lambda(n, LISP.EXP.abs(n))]
 ];
-const prelude = ENV.load(definitions, ENV.zero())
+const prelude = ENV.prelude(definitions)
 
 
 const Syntax = {
@@ -289,7 +306,7 @@ const Semantics = {
 //
 //
 // repl:: Env -> Cont[IO]
-const repl = (environment) => {
+const Repl = (environment) => {
   const Semantics = require('../lib/semantics.js');
   const Interpreter = require("../lib/interpreter.js"),
     Evaluator = Interpreter(Syntax.expression, Semantics.evaluator);
@@ -301,21 +318,22 @@ const repl = (environment) => {
 
   return Cont.callCC(exit => {
     // loop:: Null -> IO
-    const loop = () => {
-      return IO.flatMap(inputAction("\ncalc> "))(inputString  => {
+    const loop = (environment) => {
+      return IO.flatMap(inputAction("\nlispy> "))(inputString  => {
         return IO.flatMap(IO.putString(inputString))(_ => {
           if(inputString === 'exit') {
             return exit(IO.done(_));
           } else {
+            return State.flatMap(Stack.pop)(arg1 => {
             return Maybe.match(Cont.eval(Evaluator(environment)(inputString)),{
               nothing: (message) => {
                 return IO.flatMap(IO.putString(`\nnothing: ${message}`))(_ => {
-                  return loop(); 
+                  return loop(environment); 
                 });
               },
               just: (value) => {
                 return IO.flatMap(IO.putString(`\n${value}`))(_ => {
-                  return loop(); 
+                  return loop(environment); 
                 });
               }
             })
@@ -323,9 +341,9 @@ const repl = (environment) => {
         });
       });
     };
-    return Cont.unit(loop())
+    return Cont.unit(loop(environment))
   });
 };
 
-IO.run(Cont.eval(repl(Env.prelude())))
+IO.run(Cont.eval(Repl(Environment.prelude())))
 
