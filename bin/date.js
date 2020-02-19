@@ -81,17 +81,6 @@ const dateEnv = [
     if(moment.isMoment(date) === true) {
       const wareki = getWarekiYmd(date.toDate());
       return Maybe.just(wareki);
-      // return Maybe.just(date.toDate().toLocaleDateString('ja-JP-u-ca-japanese', {
-      //   era    : 'long'   ,  // 時代 : 'narrow' にすると '平成' は 'H' になる
-      //   year   : 'numeric',  // 年 : 'ja-JP-u-ca-japanese' の場合は和暦
-      //   month  : 'long'   ,  // 月
-      //   day    : 'numeric',  // 日
-      //   weekday: 'short'  ,  // 曜日 : 'long' で '金曜日'・'short' で '(金)' になる
-      //   hour12 : true     ,  // 時間の12時間表記 : false にすると '16' (時) ではなく '午後4' (時) になる
-      //   hour   : 'numeric',  // 時
-      //   minute : 'numeric',  // 分
-      //   second : 'numeric'   // 秒
-      // }));
     } else {
       return Maybe.nothing(`${date} のマッチエラー`);
     }}))

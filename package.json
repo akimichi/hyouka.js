@@ -12,6 +12,7 @@
     "calc": "rlwrap node bin/calc.js",
     "date": "rlwrap node bin/date.js",
     "rpn": "rlwrap node bin/rpn.js",
+    "lispy": "rlwrap node bin/lispy.js",
     "test": "mocha -R spec --recursive test/"
   },
   "bin": {

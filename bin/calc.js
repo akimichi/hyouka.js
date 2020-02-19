@@ -236,7 +236,7 @@ const Syntax = {
                 return Parser.unit(application);
               },
               app: (operator, operands) => {
-                return Parser.unit(Epx.app(operator, operands));
+                return Parser.unit(Exp.app(operator, operands));
               }
             });
           })
