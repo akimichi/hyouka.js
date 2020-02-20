@@ -103,15 +103,18 @@ const Syntax = {
       );
     };
     const operands = (_) => {
-      const separator = Parser.char(","); 
+      const separator = Parser.char(" "); 
       return Parser.sepBy(Syntax.expression())(separator);
     };
-    return Parser.flatMap(operator())(operator => {
-      return Parser.flatMap(open)(_ => {
+    return Parser.flatMap(open)(_ => {
+      return Parser.flatMap(operator())(operator => {
+        console.log(`operator: ${operator}`)
         return Parser.flatMap(operands())(args => {
+          console.log(`args: ${args}`)
           return Parser.flatMap(close)(_ => {
             return Exp.match(operator, {
               variable: (name) => { // e.g.  (add 1 2) => (\x -> (\x -> add(arg1)))(arg2)
+                console.log(`name: ${name}`)
                 const fun = Exp.variable(name);
                 // 引数なしの関数適用、例えば today() の場合
                 if(array.isEmpty(args)) {
@@ -119,6 +122,7 @@ const Syntax = {
                   return Parser.unit(application);
                 } else {
                   const application = array.foldr(args)(fun)(arg => {
+                    console.log(`arg: ${arg}`)
                     return (accumulator) => {
                       return Exp.app(accumulator, arg)
                     };
