@@ -156,9 +156,12 @@ const Syntax = {
     },
   },
   variable: (_) => {
-    return Parser.token(Parser.flatMap(Parser.identifier(["^"]))(name => {
+    return Parser.flatMap(Parser.identifier(["^"]))(name => {
       return Parser.unit(Exp.variable(name));
-    }))
+    });
+    // return Parser.token(Parser.flatMap(Parser.identifier(["^"]))(name => {
+    //   return Parser.unit(Exp.variable(name));
+    // }))
   },
   /*
    * (\arg body)
@@ -209,6 +212,7 @@ const Syntax = {
     return Parser.flatMap(operator())(operator => {
       return Parser.flatMap(open)(_ => {
         return Parser.flatMap(operands())(args => {
+          // console.log(`args: ${args}`)
           return Parser.flatMap(close)(_ => {
             return Exp.match(operator, {
               variable: (name) => { // e.g.  (add 1 2) => (\x -> (\x -> add(arg1)))(arg2)
@@ -218,6 +222,7 @@ const Syntax = {
                   const application = Exp.app(fun, Exp.dummy())
                   return Parser.unit(application);
                 } else {
+                  // console.log("引数あり")
                   const application = array.foldr(args)(fun)(arg => {
                     return (accumulator) => {
                       return Exp.app(accumulator, arg)
