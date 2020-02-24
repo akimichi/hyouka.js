@@ -21,10 +21,14 @@ const Exp = require('../lib/exp.js');
 const Syntax = {
   // expression: () -> PARSER
   expression: (_) => {
-    return Parser.alt(Syntax.atom(), 
+    return Parser.alt(Syntax.app(), 
       Parser.alt(Syntax.lambda(), 
-        Parser.alt(Syntax.app(), 
+        Parser.alt(Syntax.atom(), 
           Syntax.list())))
+    // return Parser.alt(Syntax.atom(), 
+    //   Parser.alt(Syntax.lambda(), 
+    //     Parser.alt(Syntax.app(), 
+    //       Syntax.list())))
   },
   list: () => {
     const open = Parser.char("["), 
@@ -103,18 +107,26 @@ const Syntax = {
       );
     };
     const operands = (_) => {
-      const separator = Parser.char(" "); 
-      return Parser.sepBy(Syntax.expression())(separator);
+      const many = (p) => {
+        return Parser.alt(
+          Parser.flatMap(p)(x => {
+            return Parser.flatMap(many(p))(xs => {
+              return Parser.unit(array.cons(x,xs));
+            });
+          })
+          ,Parser.unit([])
+        );
+      };
+      return Parser.flatMap(many(Syntax.expression()))(expressions => {
+        return Parser.unit(expressions);
+      });
     };
     return Parser.flatMap(open)(_ => {
       return Parser.flatMap(operator())(operator => {
-        console.log(`operator: ${operator}`)
         return Parser.flatMap(operands())(args => {
-          console.log(`args: ${args}`)
           return Parser.flatMap(close)(_ => {
             return Exp.match(operator, {
               variable: (name) => { // e.g.  (add 1 2) => (\x -> (\x -> add(arg1)))(arg2)
-                console.log(`name: ${name}`)
                 const fun = Exp.variable(name);
                 // 引数なしの関数適用、例えば today() の場合
                 if(array.isEmpty(args)) {
@@ -122,7 +134,6 @@ const Syntax = {
                   return Parser.unit(application);
                 } else {
                   const application = array.foldr(args)(fun)(arg => {
-                    console.log(`arg: ${arg}`)
                     return (accumulator) => {
                       return Exp.app(accumulator, arg)
                     };
