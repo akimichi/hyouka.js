@@ -232,12 +232,17 @@ const Syntax = {
                 }
               },
               lambda: (variable, body) => {
-                const x = Exp.variable('x');
-                const application = array.foldr(args)(Exp.lambda(x, body))(arg => {
+                const application = array.foldr(args)(Exp.lambda(variable, body))(arg => {
                   return (accumulator) => {
                     return Exp.app(accumulator, arg)
                   };
                 });
+                // const x = Exp.variable('x');
+                // const application = array.foldr(args)(Exp.lambda(x, body))(arg => {
+                //   return (accumulator) => {
+                //     return Exp.app(accumulator, arg)
+                //   };
+                // });
                 return Parser.unit(application);
               },
               app: (operator, operands) => {
