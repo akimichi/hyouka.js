@@ -66,7 +66,7 @@ IO.run(Cont.eval(Repl(Env.prelude())))
 
 ## sample programs
 
-### simple calculator
+### A simple calculator
 
 c.f. https://github.com/akimichi/hyouka.js/blob/master/bin/calc.js
 
@@ -83,13 +83,38 @@ false
 calc> pow(2, 10)
 1024
 
-calc> (\x x+1)(2)
-3
-
-calc> (\x (\y x+y))(1, 2)
-3
-
 calc> exit
+exit
+~~~
+
+### An untyped lambda calculus interpreter
+
+c.f. https://github.com/akimichi/hyouka.js/blob/master/bin/lambda.js
+
+~~~
+$ npm run lambda
+
+lambda> 1
+1
+1
+
+lambda> #f
+#f
+false
+
+lambda> (add 1 2)
+(add 1 2)
+3
+
+lambda> ({y (add 1 y)} 2)
+({y (add 1 y)} 2)
+3
+
+lambda> ({x {y (add x y)}} 1 2)
+({x {y (add x y)}} 1 2)
+3
+
+lambda> exit
 exit
 ~~~
 
