@@ -77,20 +77,23 @@ const Syntax = {
   },
   // LISP.SYNTAX.lambda
   // (\x body)
+  // <x body>
   lambda: () => {
-    const open = Parser.char("("), close = Parser.char(")"), slash = Parser.char("\\"); 
+    const open = Parser.char("{"), close = Parser.char("}"), slash = Parser.char("\\"); 
     const parameter = (_) => {
-      return Parser.flatMap(slash)(_ => {
-        return Parser.flatMap(Parser.ident())(name => {
-          return Parser.unit(name);
-        });
+      return Parser.flatMap(Parser.ident())(name => {
+        return Parser.unit(name);
       });
+      // return Parser.flatMap(Parser.token(slash))(_ => {
+      //   return Parser.flatMap(Parser.ident())(name => {
+      //     return Parser.unit(name);
+      //   });
+      // });
     };
     return Parser.flatMap(open)(_ => { 
     //return Parser.flatMap(Parser.token(open))(_ => { 
       return Parser.flatMap(parameter())(name => {
-        return Parser.flatMap(Syntax.expression())(body => {
-        // return Parser.flatMap(Parser.token(Syntax.expression()))(body => {
+        return Parser.flatMap(Parser.token(Syntax.expression()))(body => {
           return Parser.flatMap(close)(_ => {
             return Parser.unit(Exp.lambda(Exp.variable(name), body));
           })
@@ -100,7 +103,7 @@ const Syntax = {
   },
   // LISP.PARSER#application
   // (operator operands)
-  // ((\x body) operands)
+  // ({x body} operands)
   app: (_) => {
     const open = Parser.char("("), close = Parser.char(")"); 
     const operator = (_) => {
@@ -142,7 +145,6 @@ const Syntax = {
                   return Parser.unit(application);
                 } else {
                   const application = array.foldr(args)(fun)(arg => {
-                    console.log(`arg: ${arg}`);
                     return (accumulator) => {
                       return Exp.app(accumulator, arg)
                     };
@@ -151,8 +153,7 @@ const Syntax = {
                 }
               },
               lambda: (variable, body) => {
-                const x = Exp.variable('x');
-                const application = array.foldr(args)(Exp.lambda(x, body))(arg => {
+                const application = array.foldr(args)(Exp.lambda(variable, body))(arg => {
                   return (accumulator) => {
                     return Exp.app(accumulator, arg)
                   };
