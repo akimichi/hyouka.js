@@ -19,13 +19,13 @@ const Hyouka = require('hyouka.js');
   Semantics = Hyouka.Semantics,
   Interpreter = Hyouka.Interpreter;
 
-// Building an evaluator from syntax and sematics.
-const Evaluator = Interpreter(Syntax.expression, Semantics.evaluator);
-
 const Monad = Hyouka.Monad,
   Maybe = Monad.Maybe, // Maybe Monad
   Cont = Monad.Cont,   // Continuation Monad
   IO = Monad.IO;       // IO Monad
+
+// Building an evaluator from syntax and sematics.
+const Evaluator = Interpreter(Syntax.expression, Semantics.evaluator);
 
 const Repl = (environment) => {
   const inputAction = (prompt) => {
@@ -77,6 +77,10 @@ calc> 1 + 2
 1 + 2
 3
 
+calc> 10 - (3 * 2)
+10 - (3 * 2)
+5
+
 calc> and(true, false)
 false
 
@@ -87,7 +91,7 @@ calc> exit
 exit
 ~~~
 
-### An untyped lambda calculus interpreter
+### A lambda calculus interpreter
 
 c.f. https://github.com/akimichi/hyouka.js/blob/master/bin/lambda.js
 

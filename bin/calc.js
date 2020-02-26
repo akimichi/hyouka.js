@@ -119,7 +119,7 @@ const Syntax = {
                 Exp.app(
                   Exp.lambda(x, Exp.lambda(y, 
                     Exp.multiply(x, y)))
-                  , expR) , expL);
+                  , expL) , expR);
             };
             return Parser.unit(multiply);
           case "/":
@@ -128,7 +128,7 @@ const Syntax = {
                 Exp.app(
                   Exp.lambda(x, Exp.lambda(y, 
                     Exp.divide(x, y)))
-                  , expR) , expL);
+                  , expL) , expR);
             };
             return Parser.unit(divide);
           case "%":
@@ -137,7 +137,7 @@ const Syntax = {
                 Exp.app(
                   Exp.lambda(x, Exp.lambda(y, 
                     Exp.modulo(x, y)))
-                  , expR) , expL);
+                  , expL) , expR);
             };
             return Parser.unit(modulo);
           case "^":
@@ -146,7 +146,7 @@ const Syntax = {
                 Exp.app(
                   Exp.lambda(x, Exp.lambda(y, 
                     Exp.exponential(x, y)))
-                  , expR) , expL);
+                  , expL) , expR);
             };
             return Parser.unit(exponential);
           default: 

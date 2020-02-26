@@ -222,32 +222,21 @@ const Repl = (environment) => {
  */
 const Env = require("../lib/env.js");
 const lispyEnv = [
+  pair.cons('+', (n) => {
+    return Maybe.just(m => {
+      return Maybe.just(n + m); 
+    });
+  }),
+  pair.cons('-', (n) => {
+    return Maybe.just(m => {
+      return Maybe.just(n - m); 
+    });
+  }),
   pair.cons('print', (message => {
     return Maybe.just(message); 
   }))
 ];
 const environment = Env.prelude(lispyEnv);
-
-// const definitions = [
-//   ["+", EXP.lambda(n, EXP.lambda(m, EXP.add(n, m)))],
-//   ["-", EXP.lambda(m, EXP.lambda(n, EXP.subtract(n, m)))],
-//   ["abs", EXP.lambda(n, EXP.abs(n))]
-// ];
-// const Environment = {
-//   empty: (_) => {
-//     return Env.empty();
-//   },
-//   extend: (key, value) => {
-//     return State.state(env => {
-//       return Env.extend(key, value)(env);
-//     });
-//   },
-//   lookup: (key) => {
-//     State.state(env => {
-//       return Env.lookup(key)(env);
-//     })
-//   }
-// };
 
 
 IO.run(Cont.eval(Repl(environment)))
