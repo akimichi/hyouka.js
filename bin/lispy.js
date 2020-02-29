@@ -79,19 +79,13 @@ const Syntax = {
   // (\x body)
   // <x body>
   lambda: () => {
-    const open = Parser.char("{"), close = Parser.char("}"), slash = Parser.char("\\"); 
+    const open = Parser.char("{"), close = Parser.char("}"); 
     const parameter = (_) => {
       return Parser.flatMap(Parser.ident())(name => {
         return Parser.unit(name);
       });
-      // return Parser.flatMap(Parser.token(slash))(_ => {
-      //   return Parser.flatMap(Parser.ident())(name => {
-      //     return Parser.unit(name);
-      //   });
-      // });
     };
     return Parser.flatMap(open)(_ => { 
-    //return Parser.flatMap(Parser.token(open))(_ => { 
       return Parser.flatMap(parameter())(name => {
         return Parser.flatMap(Parser.token(Syntax.expression()))(body => {
           return Parser.flatMap(close)(_ => {
