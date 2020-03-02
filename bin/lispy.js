@@ -1,5 +1,10 @@
 'use strict';
 
+/*
+ * symple untyped lambda calculus interpreter
+ *
+ */
+
 const fs = require('fs'),
   expect = require('expect.js');
 
@@ -21,34 +26,13 @@ const Exp = require('../lib/exp.js');
 const Syntax = {
   // expression: () -> PARSER
   expression: (_) => {
-    return Parser.alt(Syntax.atom(), 
+    return Parser.alt(Syntax.value(), 
       Parser.alt(Syntax.lambda(), 
         Parser.alt(Syntax.app(), 
-          Parser.alt(Syntax.variable(), 
-            Syntax.list()))));
-    // return Parser.alt(Syntax.lambda(), 
-    //   Parser.alt(Syntax.app(), 
-    //     Parser.alt(Syntax.atom(), 
-    //       Syntax.list())))
-    // return Parser.alt(Syntax.app(), 
-    //   Parser.alt(Syntax.lambda(), 
-    //     Parser.alt(Syntax.atom(), 
-    //       Syntax.list())))
+          Syntax.variable())));
   },
-  list: () => {
-    const open = Parser.char("["), 
-      close = Parser.char("]"),
-      separator = Parser.char(","); 
-    const contents = () => {
-      return Parser.sepBy(Syntax.expression())(separator);
-    };
-    return Parser.flatMap(open)(_ => {
-      return Parser.flatMap(contents())(contents => {
-        return Parser.flatMap(close)(_ => {
-          return Parser.unit(contents);
-        });
-      });
-    });
+  value: () => {
+    return Parser.alt(Syntax.atom(),Syntax.list());
   },
   atom: () => {
     return Parser.alt(Syntax.number(),Syntax.bool());
@@ -68,10 +52,62 @@ const Syntax = {
       }))
     );
   },
+  list: () => {
+    const open = Parser.char("["), close = Parser.char("]");
+    const contents = (_) => {
+      const many = (p) => {
+        return Parser.alt(
+          Parser.flatMap(p)(x => {
+            return Parser.flatMap(many(p))(xs => {
+              return Parser.unit(array.cons(x,xs));
+            });
+          })
+          ,Parser.unit([])
+        );
+      };
+      return Parser.flatMap(many(Syntax.expression()))(expressions => {
+        return Parser.unit(expressions);
+      });
+    };
+    // const contents = () => {
+    //   return Parser.sepBy(Syntax.expression())(separator);
+    // };
+    return Parser.flatMap(open)(_ => {
+      return Parser.flatMap(contents())(contents => {
+        // console.log(`contents: ${contents}`)
+        return Parser.flatMap(close)(_ => {
+          return Parser.unit(Exp.list(contents));
+        });
+      });
+    });
+  },
   // SYNTAX.variable
-  // variable:: () -> READER[PARSER[ ]]]
+  // variable:: () -> PARSER[String]
   variable: () => {
-    return Parser.token(Parser.flatMap(Parser.identifier(["^"]))(name => {
+    const ident = () => { 
+      const operator = (_) => {
+        const isOperator = (x) => {
+          if(x.match(/^[+-=~^~*\/%$#!&<>?_\\]/)){
+            return true;
+          } else {
+            return false;
+          } 
+        };
+        return Parser.sat(isOperator);
+      };
+      return Parser.alt(Parser.letter(), operator());
+    };
+    const identifier = (_) => {
+      const keywords = ["(", ")", "{", "}", ",",";",":","[","]"];
+      return Parser.token(Parser.flatMap(ident())(xx => {
+        if(array.elem(keywords)(xx)) {
+          return Parser.fail(`${xx} is a reserved keyword!`);
+        } else {
+          return Parser.unit(xx);
+        }
+      }));
+    };
+    return Parser.token(Parser.flatMap(identifier())(name => {
       return Parser.unit(Exp.variable(name));
     }))
   },
@@ -79,13 +115,19 @@ const Syntax = {
   // (\x body)
   // <x body>
   lambda: () => {
-    const open = Parser.char("{"), close = Parser.char("}"); 
+    const open = Parser.char("{"), close = Parser.char("}"), slash = Parser.char("\\"); 
     const parameter = (_) => {
       return Parser.flatMap(Parser.ident())(name => {
         return Parser.unit(name);
       });
+      // return Parser.flatMap(Parser.token(slash))(_ => {
+      //   return Parser.flatMap(Parser.ident())(name => {
+      //     return Parser.unit(name);
+      //   });
+      // });
     };
     return Parser.flatMap(open)(_ => { 
+    //return Parser.flatMap(Parser.token(open))(_ => { 
       return Parser.flatMap(parameter())(name => {
         return Parser.flatMap(Parser.token(Syntax.expression()))(body => {
           return Parser.flatMap(close)(_ => {
@@ -138,7 +180,8 @@ const Syntax = {
                   const application = Exp.app(fun, Exp.dummy())
                   return Parser.unit(application);
                 } else {
-                  const application = array.foldr(args)(fun)(arg => {
+                  // const application = array.foldr(args)(fun)(arg => {
+                  const application = array.foldl(args)(fun)(arg => {
                     return (accumulator) => {
                       return Exp.app(accumulator, arg)
                     };
@@ -215,7 +258,7 @@ const Repl = (environment) => {
  * 環境 Environment
  */
 const Env = require("../lib/env.js");
-const lispyEnv = [
+const extraEnv = [
   pair.cons('+', (n) => {
     return Maybe.just(m => {
       return Maybe.just(n + m); 
@@ -230,7 +273,7 @@ const lispyEnv = [
     return Maybe.just(message); 
   }))
 ];
-const environment = Env.prelude(lispyEnv);
+const environment = Env.prelude(extraEnv);
 
 
 IO.run(Cont.eval(Repl(environment)))
