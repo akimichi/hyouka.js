@@ -11,6 +11,7 @@ const fs = require('fs'),
 const kansuu = require('kansuu.js'),
   pair = kansuu.pair,
   array = kansuu.array;
+const Chars = require('../lib/chars.js'); 
 
 const Monad = require('../lib/monad'),
   Maybe = Monad.Maybe,
@@ -95,7 +96,13 @@ const Syntax = {
         };
         return Parser.sat(isOperator);
       };
-      return Parser.alt(Parser.letter(), operator());
+      // return Parser.alt(Parser.letter(), operator());
+      return Parser.flatMap(Parser.alt(Parser.letter(), operator()))(x => {
+        return Parser.flatMap(Parser.many(Parser.alphanum()))(xs => {
+          expect(xs).to.a('string');
+          return Parser.unit(Chars.cons(x, xs));
+        });
+      });
     };
     const identifier = (_) => {
       const keywords = ["(", ")", "{", "}", ",",";",":","[","]"];
@@ -259,6 +266,11 @@ const Repl = (environment) => {
  */
 const Env = require("../lib/env.js");
 const extraEnv = [
+  pair.cons('cons', (head) => {
+    return Maybe.just(tail => {
+      return Maybe.just(array.cons(head, tail)); 
+    });
+  }),
   pair.cons('+', (n) => {
     return Maybe.just(m => {
       return Maybe.just(n + m); 
