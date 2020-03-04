@@ -68,6 +68,7 @@ const Syntax = {
       };
       return Parser.flatMap(many(Syntax.expression()))(expressions => {
         return Parser.unit(expressions);
+        // return Parser.unit(Exp.list(expressions));
       });
     };
     // const contents = () => {
@@ -75,7 +76,6 @@ const Syntax = {
     // };
     return Parser.flatMap(open)(_ => {
       return Parser.flatMap(contents())(contents => {
-        // console.log(`contents: ${contents}`)
         return Parser.flatMap(close)(_ => {
           return Parser.unit(Exp.list(contents));
         });
@@ -187,7 +187,6 @@ const Syntax = {
                   const application = Exp.app(fun, Exp.dummy())
                   return Parser.unit(application);
                 } else {
-                  // const application = array.foldr(args)(fun)(arg => {
                   const application = array.foldl(args)(fun)(arg => {
                     return (accumulator) => {
                       return Exp.app(accumulator, arg)
