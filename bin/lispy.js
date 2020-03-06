@@ -10,8 +10,8 @@ const fs = require('fs'),
 
 const kansuu = require('kansuu.js'),
   pair = kansuu.pair,
-  array = kansuu.array;
-const Chars = require('../lib/chars.js'); 
+  array = kansuu.array,
+  chars = kansuu.chars;
 
 const Monad = require('../lib/monad'),
   Maybe = Monad.Maybe,
@@ -71,9 +71,6 @@ const Syntax = {
         // return Parser.unit(Exp.list(expressions));
       });
     };
-    // const contents = () => {
-    //   return Parser.sepBy(Syntax.expression())(separator);
-    // };
     return Parser.flatMap(open)(_ => {
       return Parser.flatMap(contents())(contents => {
         return Parser.flatMap(close)(_ => {
@@ -100,7 +97,7 @@ const Syntax = {
       return Parser.flatMap(Parser.alt(Parser.letter(), operator()))(x => {
         return Parser.flatMap(Parser.many(Parser.alphanum()))(xs => {
           expect(xs).to.a('string');
-          return Parser.unit(Chars.cons(x, xs));
+          return Parser.unit(chars.cons(x, xs));
         });
       });
     };

@@ -46,9 +46,10 @@ describe("Semanticsをテストする",() => {
   });
   describe("配列型を評価する",() => {
     it("evaluate([1])は、Maybe.just([1])を返す",(done) => {
-      const array = Exp.array([1,2,3]);
+      const list = Exp.list([Exp.num(1), Exp.num(2), Exp.num(3)]);
+      // const list = Exp.list([1,2,3]);
 
-      Maybe.match(Cont.eval(Semantics.evaluate(array)(Env.empty())),{
+      Maybe.match(Cont.eval(Semantics.evaluate(list)(Env.empty())),{
         nothing: (_) => {
           expect().fail();
         },
