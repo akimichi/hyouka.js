@@ -37,6 +37,29 @@ describe("Stateモナドをテストする",() => {
     next();
   });
 
+  describe("Stateモナドでメモリー付き計算を表現する",() => {
+    const madd = (x) => {
+      const add = (x) => (s) => {
+        return x + s;
+      }
+      return State.modify(add(x));
+    }
+    it('runState (madd 8 >>  madd 9 >> >> get) 0', (next) => {
+      const operation = State.flatMap(madd(8))(_ => {
+        return State.flatMap(madd(9))(_ => {
+          return State.get();
+        });
+      });
+      expect(
+        pair.left(operation.run(0))
+      ).to.eql(17);
+      expect(
+        pair.right(operation.run(0))
+      ).to.eql(17);
+      next();
+    });
+  });
+
   describe("Stateモナドでスタックを表現する",() => {
     // push :: Int -> State Stack ()
     // push a = state $ \xs -> ((), a:xs)
