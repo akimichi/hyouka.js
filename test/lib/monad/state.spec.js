@@ -70,14 +70,6 @@ describe("Stateモナドをテストする",() => {
         return pair.cons(undefined, array.cons(a, xs));
       });
     };
-    // const push = (item) => (instance) => {
-    //   return State.flatMap(State.get(instance))(state => {
-    //     return State.flatMap(State.put(array.cons(item, state)))(_ => {
-    //       return State.unit(item);
-    //     });
-    //   });
-    // };
-   
     // pop :: State [Int] Int
     // pop = state $ \(x:xs) -> (x, xs)
     const pop = State.state((xxs) => {
@@ -87,13 +79,6 @@ describe("Stateモナドをテストする",() => {
         }
       });
     });
-    // const pop = (instance) => {
-    //   return State.flatMap(State.get(instance))(state => {
-    //     return State.flatMap(State.put(array.cons(item, state)))(_ => {
-    //       return State.unit(item);
-    //     });
-    //   });
-    // };
     it('スタックを操作する', (next) => {
       const operation = State.flatMap(push(3))(_ => {
         return State.flatMap(push(2))(_ => {
