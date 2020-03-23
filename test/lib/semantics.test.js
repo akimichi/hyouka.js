@@ -3,9 +3,9 @@
 const fs = require('fs'),
   expect = require('expect.js');
 
-const kansuu = require('kansuu.js'),
-  array = kansuu.array,
-  pair = kansuu.pair;
+// const kansuu = require('kansuu.js'),
+//   array = kansuu.array,
+//   Pair = kansuu.pair;
 
 const Monad = require('../../lib/monad'),
   Maybe = Monad.Maybe,
@@ -15,56 +15,25 @@ const Monad = require('../../lib/monad'),
   ID = Monad.ID;
 
 // ### Semanticsのテスト
-describe("Semanticsをテストする",() => {
+describe("Semantics test",() => {
   const Env = require("../../lib/env.js"),
     Exp = require("../../lib/exp.js"),
     Syntax = require("../../lib/syntax.js"),
     Semantics = require("../../lib/semantics.js");
 
   const Monad = require('../../lib/monad'),
-    Reader = Monad.Reader,
+    State = Monad.State,
     Parser = Monad.Parser,
     Maybe = Monad.Maybe;
 
-  describe("Contで式を評価する",() => {
-    it("Cont.seq",(done) => {
-      const one = Exp.num(1),
-        two = Exp.num(2);
-      const instanceA = Semantics.evaluate(one)(Env.empty()),
-        instanceB = Semantics.evaluate(two)(Env.empty());
+  const Definition = Semantics.definition;
 
-      Maybe.match(Cont.eval(Cont.seq(instanceA)(instanceB)),{
-        nothing: (_) => {
-          expect().fail();
-        },
-        just: (value) => {
-          expect(value).to.eql(2);
-          done(); 
-        }
-      })
-    });
-  });
-  describe("配列型を評価する",() => {
-    it("evaluate([1])は、Maybe.just([1])を返す",(done) => {
-      const list = Exp.list([Exp.num(1), Exp.num(2), Exp.num(3)]);
-      // const list = Exp.list([1,2,3]);
+  describe("evaluate a number",() => {
+    const one = Exp.num(1),
+      emptyEnv = Env.empty();
 
-      Maybe.match(Cont.eval(Semantics.evaluate(list)(Env.empty())),{
-        nothing: (_) => {
-          expect().fail();
-        },
-        just: (value) => {
-          expect(value).to.eql([1,2,3]);
-          done(); 
-        }
-      })
-    });
-  });
-  describe("数値を評価する",() => {
     it("evaluate(1)は、Maybe.just(1)を返す",(done) => {
-      const num = Exp.num(1);
-
-      Maybe.match(Cont.eval(Semantics.evaluate(num)(Env.empty())),{
+      Maybe.match(State.eval(Cont.eval(Semantics.evaluate(Definition)(one)))(emptyEnv), {
         nothing: (_) => {
           expect().fail();
         },
@@ -464,6 +433,40 @@ describe("Semanticsをテストする",() => {
         },
         just: (value) => {
           expect(value).to.eql(2);
+          done(); 
+        }
+      })
+    });
+  });
+  describe("Contで式を評価する",() => {
+    it("Cont.seq",(done) => {
+      const one = Exp.num(1),
+        two = Exp.num(2);
+      const instanceA = Semantics.evaluate(one)(Env.empty()),
+        instanceB = Semantics.evaluate(two)(Env.empty());
+
+      Maybe.match(Cont.eval(Cont.seq(instanceA)(instanceB)),{
+        nothing: (_) => {
+          expect().fail();
+        },
+        just: (value) => {
+          expect(value).to.eql(2);
+          done(); 
+        }
+      })
+    });
+  });
+  describe("配列型を評価する",() => {
+    it("evaluate([1])は、Maybe.just([1])を返す",(done) => {
+      const list = Exp.list([Exp.num(1), Exp.num(2), Exp.num(3)]);
+      // const list = Exp.list([1,2,3]);
+
+      Maybe.match(Cont.eval(Semantics.evaluate(list)(Env.empty())),{
+        nothing: (_) => {
+          expect().fail();
+        },
+        just: (value) => {
+          expect(value).to.eql([1,2,3]);
           done(); 
         }
       })
