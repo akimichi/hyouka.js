@@ -33,36 +33,36 @@ describe("Exp test",() => {
 
   });
   describe("test Exp.num",() => {
-    it("Exp.num has type and value",(done) => {
+    it("Exp.num has type and content",(done) => {
       const expression = Exp.num(1);
       Maybe.match(expression,{
         num: (value) => {
           expect(expression.type).to.eql("num");
-          expect(expression.value).to.equal(1);
+          expect(expression.content).to.equal(1);
           done();
         }
       })
     });
   });
   describe("test Exp.bool",() => {
-    it("Exp.bool has type and value",(done) => {
+    it("Exp.bool has type and content",(done) => {
       const expression = Exp.bool(true);
       Maybe.match(expression,{
         bool: (value) => {
           expect(expression.type).to.eql("bool");
-          expect(expression.value).to.equal(true);
+          expect(expression.content).to.equal(true);
           done();
         }
       })
     });
   });
   describe("test Exp.string",() => {
-    it("Exp.string has type and value",(done) => {
+    it("Exp.string has type and content",(done) => {
       const expression = Exp.string("a string");
       Maybe.match(expression,{
         string: (value) => {
           expect(expression.type).to.eql("string");
-          expect(expression.value).to.equal("a string");
+          expect(expression.content).to.equal("a string");
           done();
         }
       })
@@ -81,24 +81,24 @@ describe("Exp test",() => {
   //   });
   // });
   describe("test Exp.list",() => {
-    it("Exp.list has type and value",(done) => {
+    it("Exp.list has type and content",(done) => {
       const expression = Exp.list([1,2]);
       Maybe.match(expression,{
         list: (values) => {
           expect(expression.type).to.eql("list");
-          expect(expression.value).to.eql([1,2]);
+          expect(expression.content).to.eql([1,2]);
           done();
         }
       })
     });
   });
   describe("test Exp.variable",() => {
-    it("Exp.variable has type and value",(done) => {
+    it("Exp.variable has type and content",(done) => {
       const expression = Exp.variable("name");
       Maybe.match(expression,{
         variable: (value) => {
           expect(expression.type).to.eql("variable");
-          expect(expression.value).to.equal("name");
+          expect(expression.content).to.equal("name");
           done();
         }
       })
@@ -112,7 +112,7 @@ describe("Exp test",() => {
       Maybe.match(expression,{
         lambda: (variable, bool) => {
           expect(expression.type).to.eql("lambda");
-          expect(expression.value.variable.value).to.equal("x");
+          expect(expression.content.variable.content).to.equal("x");
           done();
         }
       })
@@ -126,8 +126,8 @@ describe("Exp test",() => {
       Maybe.match(expression,{
         app: (operator, operand) => {
           expect(expression.type).to.eql("app");
-          expect(expression.value.operator.type).to.equal("lambda");
-          expect(expression.value.operand.type).to.equal("num");
+          expect(expression.content.operator.type).to.equal("lambda");
+          expect(expression.content.operand.type).to.equal("num");
           done();
         }
       })
@@ -142,9 +142,9 @@ describe("Exp test",() => {
       Maybe.match(expression,{
         let: (variable, declaration, bool) => {
           expect(expression.type).to.eql("let");
-          expect(expression.value.variable.type).to.equal("variable");
-          expect(expression.value.declaration.type).to.equal("num");
-          expect(expression.value.body.type).to.equal(undefined);
+          expect(expression.content.variable.type).to.equal("variable");
+          expect(expression.content.declaration.type).to.equal("num");
+          expect(expression.content.body.type).to.equal(undefined);
           done();
         }
       })
