@@ -40,7 +40,7 @@
   "homepage": "https://github.com/akimichi/hyouka.js#readme",
   "dependencies": {
     "kansuu.js": "^0.3.3",
-    "moment": "2.22.2",
+    "moment": "2.29.2",
     "readline-sync": "1.4.9"
   },
   "devDependencies": {
