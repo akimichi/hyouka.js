@@ -6,7 +6,6 @@ const fs = require('fs'),
 const kansuu = require('kansuu.js'),
   array = kansuu.array,
   pair = kansuu.pair;
-  // parser = kansuu.monad.parser;
 
 const Monad = require('../../lib/monad'),
   Maybe = Monad.Maybe,
