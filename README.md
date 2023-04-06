@@ -106,16 +106,16 @@ lambda> #f
 #f
 false
 
-lambda> (add 1 2)
+lambda> (+ 1 2)
 (add 1 2)
 3
 
-lambda> ({y (add 1 y)} 2)
-({y (add 1 y)} 2)
+lambda> ({y (+ 1 y)} 2)
+({y (+ 1 y)} 2)
 3
 
-lambda> ({x {y (add x y)}} 1 2)
-({x {y (add x y)}} 1 2)
+lambda> ({x {y (+ x y)}} 1 2)
+({x {y (+ x y)}} 1 2)
 3
 
 lambda> exit
