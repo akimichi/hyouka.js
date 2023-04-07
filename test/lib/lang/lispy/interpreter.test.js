@@ -17,10 +17,10 @@ const Monad = require('../../../../lib/monad'),
 
 // ### Interpreterのテスト
 describe("Interpreterをテストする",() => {
-  const Env = require("../../lib/env.js"),
-    Exp = require("../../lib/exp.js"),
-    Syntax = require("../../lib/syntax.js"),
-    Semantics = require("../../lib/semantics.js"),
-    Interpreter = require("../../lib/interpreter.js");
+  const Env = require("../../../../lib/env.js"),
+    Exp = require("../../../../lib/exp.js"),
+    Syntax = require("../../../../lib/syntax.js"),
+    Semantics = require("../../../../lib/semantics.js"),
+    Interpreter = require("../../../../lib/interpreter.js");
 
 })
