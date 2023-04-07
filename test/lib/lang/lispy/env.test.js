@@ -19,7 +19,7 @@ describe("lispy環境をテストする",() => {
   const Env = require("../../../../lib/env.js");
   const environment = require("../../../../lib/lang/lispy/env.js");
 
-  it("Env.emptyをテストする",(done) => {
+  it("未定義の変数の場合",(done) => {
     Maybe.match(Env.lookup('a')(environment),{
       nothing: (_) => {
         expect(true).to.be.ok();
