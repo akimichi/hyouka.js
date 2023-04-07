@@ -28,10 +28,10 @@ const Exp = require('../lib/exp.js');
 const Repl = (environment) => {
   const Syntax = require('../lib/lang/lispy/syntax.js')
   const Semantics = require('../lib/semantics.js');
-  // const Interpreter = require("../lib/interpreter.js")
-  const Interpreter = require("../lib/lang/lispy/interpreter.js")
+  const Interpreter = require("../lib/interpreter.js")
+  const LispyInterpreter = require("../lib/lang/lispy/interpreter.js")
 
-  // const  Evaluator = Interpreter(Syntax.expression, Semantics.evaluator);
+  const  Evaluator = Interpreter(Syntax.expression, Semantics.evaluator);
 
 
   const inputAction = (prompt) => {
@@ -49,7 +49,7 @@ const Repl = (environment) => {
             return exit(IO.done(_));
           } else {
             // return Maybe.match(Cont.eval(Evaluator(environment)(inputString)),{
-            return Maybe.match(Cont.eval(Interpreter(environment)(inputString)),{
+            return Maybe.match(Cont.eval(LispyInterpreter(environment)(inputString)),{
               nothing: (message) => {
                 return IO.flatMap(IO.putString(`\nnothing: ${message}`))(_ => {
                   return loop(environment); 
