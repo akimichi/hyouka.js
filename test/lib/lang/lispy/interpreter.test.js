@@ -17,10 +17,21 @@ const Monad = require('../../../../lib/monad'),
 
 // ### Interpreterのテスト
 describe("Interpreterをテストする",() => {
-  const Env = require("../../../../lib/env.js"),
+  const environment = require("../../../../lib/lang/lispy/env.js"),
     Exp = require("../../../../lib/exp.js"),
-    Syntax = require("../../../../lib/syntax.js"),
+    Syntax = require("../../../../lib/lang/lispy/syntax.js"),
     Semantics = require("../../../../lib/semantics.js"),
-    Interpreter = require("../../../../lib/interpreter.js");
+    LispyInterpreter = require("../../../../lib/lang/lispy/interpreter.js");
+  it("数値1を評価する", (done) => {
+    Maybe.match(Cont.eval(LispyInterpreter(environment)("1")),{
+      nothing: (_) => {
+        expect().fail();
+      },
+      just: (value) => {
+        expect(value).to.eql(1);
+        done(); 
+      }
+    })
+  })
 
 })

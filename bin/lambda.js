@@ -31,7 +31,7 @@ const Repl = (environment) => {
   const Interpreter = require("../lib/interpreter.js")
   const LispyInterpreter = require("../lib/lang/lispy/interpreter.js")
 
-  const  Evaluator = Interpreter(Syntax.expression, Semantics.evaluator);
+  // const  Evaluator = Interpreter(Syntax.expression, Semantics.evaluator);
 
 
   const inputAction = (prompt) => {
@@ -48,7 +48,6 @@ const Repl = (environment) => {
           if(inputString === 'exit') {
             return exit(IO.done(_));
           } else {
-            // return Maybe.match(Cont.eval(Evaluator(environment)(inputString)),{
             return Maybe.match(Cont.eval(LispyInterpreter(environment)(inputString)),{
               nothing: (message) => {
                 return IO.flatMap(IO.putString(`\nnothing: ${message}`))(_ => {
