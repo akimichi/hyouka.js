@@ -33,5 +33,16 @@ describe("Interpreterをテストする",() => {
       }
     })
   })
+  it("{(\\x  x) 1}は、Maybe.just(1)を返す", function(done) {
+    Maybe.match(Cont.eval(LispyInterpreter(environment)("{(\\x  x) 1}")),{
+      nothing: (_) => {
+        expect().fail();
+      },
+      just: (value) => {
+        expect(value).to.eql(2);
+        done(); 
+      }
+    })
+  });
 
 })

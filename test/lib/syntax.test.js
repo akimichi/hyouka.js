@@ -20,6 +20,22 @@ const Monad = require('../../lib/monad'),
 describe("文法をテストする",() => {
   const Syntax = require('../../lib/syntax.js'),
     Exp = require('../../lib/exp.js');
+  it("numをテストする",(done) => {
+    Maybe.match(Parser.parse(Syntax.num())("123"), {
+      nothing: (message) => {
+        expect().to.fail()
+        done();
+      },
+      just: (result) => {
+        Exp.match(result.value, {
+          num: (value) => {
+            expect(value).to.eql(123);
+            done();
+          }
+        })
+      }
+    });
+  });
   describe("stringパーサーをテストする",() => {
     it("test", function(done) {
       Maybe.match(Syntax.string()("\"foo\""), {
