@@ -33,16 +33,38 @@ describe("Interpreterをテストする",() => {
       }
     })
   })
-  it("{(\\x  x) 1}は、Maybe.just(1)を返す", function(done) {
-    Maybe.match(Cont.eval(LispyInterpreter(environment)("{(\\x  x) 1}")),{
+  it("(+ 1 2)は、Maybe.just(3)を返す", function(done) {
+    Maybe.match(Cont.eval(LispyInterpreter(environment)("(+ 1 2)")),{
       nothing: (_) => {
         expect().fail();
       },
       just: (value) => {
-        expect(value).to.eql(2);
+        expect(value).to.eql(3);
         done(); 
       }
     })
   });
+  it("(+ 1 (* 2 3))は、Maybe.just(7)を返す", function(done) {
+    Maybe.match(Cont.eval(LispyInterpreter(environment)("(+ 1 (* 2 3))")),{
+      nothing: (_) => {
+        expect().fail();
+      },
+      just: (value) => {
+        expect(value).to.eql(7);
+        done(); 
+      }
+    })
+  });
+  // it("{(\\x  x) 1}は、Maybe.just(1)を返す", function(done) {
+  //   Maybe.match(Cont.eval(LispyInterpreter(environment)("((\\x  x) 1)")),{
+  //     nothing: (_) => {
+  //       expect().fail();
+  //     },
+  //     just: (value) => {
+  //       expect(value).to.eql(1);
+  //       done(); 
+  //     }
+  //   })
+  // });
 
 })
